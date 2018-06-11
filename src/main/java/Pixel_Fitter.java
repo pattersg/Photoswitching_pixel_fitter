@@ -1,10 +1,18 @@
 /*
  * /*
+Acknowledgements
 The code in this plugin was written using shared resources from several places.  
-I include their license information and links to the sites from which the shared code was accessed.
+I include links to the sites from which the shared code was accessed.
 https://github.com/openmicroscopy/bioformats/blob/develop/components/formats-gpl/utils/PrintTimestamps.java
 https://albert.rierol.net/imagej_programming_tutorials.html
+https://imagej.nih.gov/ij/plugins/download/Z_Profiler.java
 
+Disclaimer
+This plugin was developed at the National Institutes of Health by an employee of the Federal Government
+in the course of his official duties. Pursuant to Title 17, Section 105 of the United States Code, this plugin 
+is not subject to copyright protection and is in the public domain. NIH assumes no responsibility whatsoever 
+for its use by other parties, and makes no guarantees, expressed or implied, about its quality, reliability, 
+or any other characteristic.
  * #L%
  */
 
