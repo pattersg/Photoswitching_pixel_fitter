@@ -5,27 +5,6 @@ I include their license information and links to the sites from which the shared
 https://github.com/openmicroscopy/bioformats/blob/develop/components/formats-gpl/utils/PrintTimestamps.java
 https://albert.rierol.net/imagej_programming_tutorials.html
 
- * #%L
- * OME Bio-Formats package for reading and converting biological file formats.
- * %%
- * Copyright (C) 2005 - 2016 Open Microscopy Environment:
- *   - Board of Regents of the University of Wisconsin-Madison
- *   - Glencoe Software, Inc.
- *   - University of Dundee
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 2 of the 
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public 
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-2.0.html>.
  * #L%
  */
 
@@ -337,7 +316,7 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     }//GEN-LAST:event_OpenStackActionPerformed
 
     private void ExaminePixelsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExaminePixelsActionPerformed
-        if(rateDataG==null){
+    if(rateDataG==null){
             final int currentchannel = img.getC()-1;       
             final int currentZ = img.getZ()-1;
             final int nSlices = img.getNSlices();        
