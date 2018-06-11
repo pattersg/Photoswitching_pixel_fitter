@@ -26,8 +26,8 @@
 	</organization>
 	<licenses>
 		<license>
-			<name>CC0 1.0 Universal License</name>
-			<url>http://creativecommons.org/publicdomain/zero/1.0/</url>
+			<name>The Unlicense</name>
+			<url>http://unlicense.org/</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
@@ -65,15 +65,15 @@
 	</mailingLists>
         
         <scm>
-		<connection>N/A</connection>
-		<developerConnection>N/A</developerConnection>
-		<tag>N/A</tag>
-		<url>N/A</url>
+		<connection>scm:git:git://github.com/pattersg/Photoswitching_pixel_fitter</connection>
+		<developerConnection>scm:git:git@github.com/pattersg/Photoswitching_pixel_fitter</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/pattersg/Photoswitching_pixel_fitter</url>
 	</scm>
 	
         <issueManagement>
-		<system>N/A</system>
-		<url>N/A</url>
+		<system>GitHub Issues</system>
+		<url>https://github.com/pattersg/Photoswitching_pixel_fitter/issues</url>
 	</issueManagement>
 	
         <ciManagement>
