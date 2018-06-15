@@ -85,10 +85,10 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     ImagePlus R2Image;
     ImagePlus Chi2Image;
     boolean chWarnOff;
-    boolean yLog = true;
-    boolean LogFitTime = true;
-    double maxiteration = 2000;
-    double NumRestarts = 2;
+    boolean yLog;
+    boolean LogFitTime;
+    double maxiteration;
+    double numRestarts;
     
     /**
      * Creates new form NewJFrame
@@ -107,20 +107,48 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        FitStack = new javax.swing.JButton();
+        jTabbedPane2 = new javax.swing.JTabbedPane();
+        jPanel1 = new javax.swing.JPanel();
         OpenStack = new javax.swing.JButton();
+        makeRateConstantImage = new javax.swing.JButton();
+        FitStack = new javax.swing.JButton();
         ExaminePixels = new javax.swing.JButton();
         MakeSaveFitParameterImage = new javax.swing.JButton();
-        imagesPerCycleTF = new javax.swing.JFormattedTextField();
-        imagesPerCycleLabel = new javax.swing.JLabel();
+        UseLogScale = new javax.swing.JCheckBox();
+        logFitTimes = new javax.swing.JCheckBox();
+        jPanel2 = new javax.swing.JPanel();
         numCyclesLabel = new javax.swing.JLabel();
         numCyclesTF = new javax.swing.JFormattedTextField();
+        imagesPerCycleLabel = new javax.swing.JLabel();
+        imagesPerCycleTF = new javax.swing.JFormattedTextField();
         imagesPerCycleLabel1 = new javax.swing.JLabel();
         R2CutOffTF = new javax.swing.JFormattedTextField();
-        makeRateConstantImage = new javax.swing.JButton();
+        ExperimentalLabel = new javax.swing.JLabel();
+        CruveFittingLabel = new javax.swing.JLabel();
+        maxIterationsLabel = new javax.swing.JLabel();
+        maxIterationsTF = new javax.swing.JFormattedTextField();
+        numRestartsLabel = new javax.swing.JLabel();
+        numRestartsTF = new javax.swing.JFormattedTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Photoswitching Pixel Fitter");
+
+        OpenStack.setText("Import with Bio-Formats");
+        OpenStack.setMaximumSize(new java.awt.Dimension(200, 30));
+        OpenStack.setPreferredSize(new java.awt.Dimension(200, 30));
+        OpenStack.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                OpenStackActionPerformed(evt);
+            }
+        });
+
+        makeRateConstantImage.setText("Remake rate constant image");
+        makeRateConstantImage.setToolTipText("");
+        makeRateConstantImage.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                makeRateConstantImageActionPerformed(evt);
+            }
+        });
 
         FitStack.setText("Fit pixels with exponential");
         FitStack.setMaximumSize(new java.awt.Dimension(200, 30));
@@ -129,15 +157,6 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
         FitStack.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 FitStackActionPerformed(evt);
-            }
-        });
-
-        OpenStack.setText("Import with Bio-Formats");
-        OpenStack.setMaximumSize(new java.awt.Dimension(200, 30));
-        OpenStack.setPreferredSize(new java.awt.Dimension(200, 30));
-        OpenStack.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                OpenStackActionPerformed(evt);
             }
         });
 
@@ -157,21 +176,63 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
             }
         });
 
-        imagesPerCycleTF.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter()));
-        imagesPerCycleTF.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        imagesPerCycleTF.setText("300");
-        imagesPerCycleTF.addActionListener(new java.awt.event.ActionListener() {
+        UseLogScale.setText("Set log scale for pixel viewer");
+        UseLogScale.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                imagesPerCycleTFActionPerformed(evt);
-            }
-        });
-        imagesPerCycleTF.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                imagesPerCycleTFPropertyChange(evt);
+                UseLogScaleActionPerformed(evt);
             }
         });
 
-        imagesPerCycleLabel.setText("Images per cycle");
+        logFitTimes.setText("Log the time required for the fits");
+        logFitTimes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                logFitTimesActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(FitStack, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(OpenStack, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(logFitTimes)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(15, 15, 15)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(MakeSaveFitParameterImage, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(makeRateConstantImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(ExaminePixels, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE))
+                            .addComponent(UseLogScale))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addComponent(OpenStack, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(30, 30, 30)
+                .addComponent(FitStack, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(logFitTimes)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
+                .addComponent(makeRateConstantImage)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(ExaminePixels, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(UseLogScale)
+                .addGap(38, 38, 38)
+                .addComponent(MakeSaveFitParameterImage, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(25, 25, 25))
+        );
+
+        jTabbedPane2.addTab("Control", jPanel1);
 
         numCyclesLabel.setText("Number of cycles");
 
@@ -186,6 +247,22 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
         numCyclesTF.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
                 numCyclesTFPropertyChange(evt);
+            }
+        });
+
+        imagesPerCycleLabel.setText("Images per cycle");
+
+        imagesPerCycleTF.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter()));
+        imagesPerCycleTF.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        imagesPerCycleTF.setText("300");
+        imagesPerCycleTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                imagesPerCycleTFActionPerformed(evt);
+            }
+        });
+        imagesPerCycleTF.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                imagesPerCycleTFPropertyChange(evt);
             }
         });
 
@@ -204,75 +281,130 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
             }
         });
 
-        makeRateConstantImage.setText("Remake rate constant image");
-        makeRateConstantImage.setToolTipText("");
-        makeRateConstantImage.addActionListener(new java.awt.event.ActionListener() {
+        ExperimentalLabel.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
+        ExperimentalLabel.setText("Experimental");
+
+        CruveFittingLabel.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
+        CruveFittingLabel.setText("Curve Fitting");
+
+        maxIterationsLabel.setText("Max iterations");
+
+        maxIterationsTF.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter()));
+        maxIterationsTF.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        maxIterationsTF.setText("2000");
+        maxIterationsTF.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                makeRateConstantImageActionPerformed(evt);
+                maxIterationsTFActionPerformed(evt);
             }
         });
+        maxIterationsTF.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                maxIterationsTFPropertyChange(evt);
+            }
+        });
+
+        numRestartsLabel.setText("Number restarts");
+
+        numRestartsTF.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter()));
+        numRestartsTF.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        numRestartsTF.setText("2");
+        numRestartsTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                numRestartsTFActionPerformed(evt);
+            }
+        });
+        numRestartsTF.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                numRestartsTFPropertyChange(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                            .addGap(56, 56, 56)
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(jPanel2Layout.createSequentialGroup()
+                                    .addComponent(numRestartsLabel)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(numRestartsTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(jPanel2Layout.createSequentialGroup()
+                                    .addComponent(imagesPerCycleLabel1)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(R2CutOffTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(jPanel2Layout.createSequentialGroup()
+                                    .addComponent(maxIterationsLabel)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(maxIterationsTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                            .addGap(53, 53, 53)
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(jPanel2Layout.createSequentialGroup()
+                                    .addGap(1, 1, 1)
+                                    .addComponent(numCyclesLabel)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(numCyclesTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(jPanel2Layout.createSequentialGroup()
+                                    .addComponent(imagesPerCycleLabel)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(imagesPerCycleTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(ExperimentalLabel)
+                            .addComponent(CruveFittingLabel))))
+                .addContainerGap(42, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addComponent(ExperimentalLabel)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(numCyclesLabel)
+                    .addComponent(numCyclesTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(imagesPerCycleLabel)
+                    .addComponent(imagesPerCycleTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 63, Short.MAX_VALUE)
+                .addComponent(CruveFittingLabel)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(maxIterationsLabel)
+                    .addComponent(maxIterationsTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(numRestartsLabel)
+                    .addComponent(numRestartsTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(imagesPerCycleLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(R2CutOffTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(73, 73, 73))
+        );
+
+        jTabbedPane2.addTab("Parameters", jPanel2);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGap(59, 59, 59)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(imagesPerCycleLabel1)
-                            .addComponent(imagesPerCycleLabel))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(imagesPerCycleTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(R2CutOffTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGap(60, 60, 60)
-                        .addComponent(numCyclesLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(numCyclesTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(0, 22, Short.MAX_VALUE))
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(FitStack, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE)
-                            .addComponent(OpenStack, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(ExaminePixels, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(MakeSaveFitParameterImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(makeRateConstantImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(21, 21, 21)
-                .addComponent(OpenStack, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(30, 30, 30)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(numCyclesLabel)
-                    .addComponent(numCyclesTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(imagesPerCycleLabel)
-                    .addComponent(imagesPerCycleTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(imagesPerCycleLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(R2CutOffTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(27, 27, 27)
-                .addComponent(FitStack, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(28, 28, 28)
-                .addComponent(makeRateConstantImage)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
-                .addComponent(ExaminePixels, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(MakeSaveFitParameterImage, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(22, 22, 22))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 443, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
@@ -605,6 +737,52 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
         }
     }//GEN-LAST:event_makeRateConstantImageActionPerformed
 
+    private void UseLogScaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UseLogScaleActionPerformed
+       if(UseLogScale.isSelected())
+           yLog=true;
+       if(!UseLogScale.isSelected())
+           yLog=false;
+    }//GEN-LAST:event_UseLogScaleActionPerformed
+
+    private void logFitTimesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logFitTimesActionPerformed
+        if(logFitTimes.isSelected())
+           LogFitTime=true;
+       if(!logFitTimes.isSelected())
+           LogFitTime=false;
+    }//GEN-LAST:event_logFitTimesActionPerformed
+
+    private void maxIterationsTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_maxIterationsTFActionPerformed
+        try{
+            maxiteration = Double.parseDouble(maxIterationsTF.getText());
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_maxIterationsTFActionPerformed
+
+    private void maxIterationsTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_maxIterationsTFPropertyChange
+        try{
+            maxiteration = Double.parseDouble(maxIterationsTF.getText());
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_maxIterationsTFPropertyChange
+
+    private void numRestartsTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_numRestartsTFActionPerformed
+         try{
+            numRestarts = Double.parseDouble(numRestartsTF.getText());
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_numRestartsTFActionPerformed
+
+    private void numRestartsTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_numRestartsTFPropertyChange
+        try{
+            numRestarts = Double.parseDouble(numRestartsTF.getText());
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_numRestartsTFPropertyChange
+
     /**
      * @param args the command line arguments
      */
@@ -674,17 +852,28 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel CruveFittingLabel;
     private javax.swing.JButton ExaminePixels;
+    private javax.swing.JLabel ExperimentalLabel;
     private javax.swing.JButton FitStack;
     private javax.swing.JButton MakeSaveFitParameterImage;
     private javax.swing.JButton OpenStack;
     private javax.swing.JFormattedTextField R2CutOffTF;
+    private javax.swing.JCheckBox UseLogScale;
     private javax.swing.JLabel imagesPerCycleLabel;
     private javax.swing.JLabel imagesPerCycleLabel1;
     private javax.swing.JFormattedTextField imagesPerCycleTF;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JTabbedPane jTabbedPane2;
+    private javax.swing.JCheckBox logFitTimes;
     private javax.swing.JButton makeRateConstantImage;
+    private javax.swing.JLabel maxIterationsLabel;
+    private javax.swing.JFormattedTextField maxIterationsTF;
     private javax.swing.JLabel numCyclesLabel;
     private javax.swing.JFormattedTextField numCyclesTF;
+    private javax.swing.JLabel numRestartsLabel;
+    private javax.swing.JFormattedTextField numRestartsTF;
     // End of variables declaration//GEN-END:variables
 
 
@@ -782,15 +971,13 @@ public void psFRET_Fit_exponential() throws Exception {//implements PlugIn {
                                     R2G[x][y][cycleNum] = 0;
                                     Chi2G[x][y][cycleNum] = 0;
                                 } else {
-                                    double maxiteration = 2000;
-                                    double NumRestarts = 2;
                                     double errotTol = 10;
                                     double[] fitparam = {
                                         guess_a,
                                         guess_b,
                                         guess_c,
                                         maxiteration,
-                                        NumRestarts,
+                                        numRestarts,
                                         errotTol
                                     };
 
