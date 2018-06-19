@@ -128,6 +128,7 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Photoswitching Pixel Fitter");
+        setResizable(false);
 
         OpenStack.setText("Import with Bio-Formats");
         OpenStack.setMaximumSize(new java.awt.Dimension(200, 30));
