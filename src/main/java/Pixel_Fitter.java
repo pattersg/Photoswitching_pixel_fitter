@@ -20,7 +20,6 @@ or any other characteristic.
  *
  * @author pattersg
  */
-
 import ij.*;
 import ij.io.*;
 import ij.gui.*;
@@ -31,7 +30,6 @@ import java.io.IOException;
 import ij.util.Tools;
 import java.awt.event.*;
 import java.io.File;
-
 
 import loci.formats.FormatException;
 import loci.formats.IFormatReader;
@@ -48,8 +46,6 @@ import loci.formats.services.OMEXMLService;
 import ome.units.quantity.Time;
 import ome.units.UNITS;
 
-
-
 public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, MouseMotionListener, Measurements, KeyListener {
 
     int imageH;
@@ -62,11 +58,11 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     double R2CutOff;
     double[] timeData;
     double[] timeData3;
-    double [][][] rateDataG;
-    double [][][] offsetDataG;
-    double [][][] aZeroDataG;
-    double [][][] R2G;
-    double [][][] Chi2G;
+    double[][][] rateDataG;
+    double[][][] offsetDataG;
+    double[][][] aZeroDataG;
+    double[][][] R2G;
+    double[][][] Chi2G;
     String id;
     ImagePlus img;
     ImageCanvas canvas;
@@ -89,14 +85,14 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     boolean LogFitTime;
     double maxiteration;
     double numRestarts;
-    
+
     /**
      * Creates new form NewJFrame
      */
     public Pixel_Fitter() {
         initComponents();
         setVisible(true);
-     }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -410,271 +406,252 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    
 
-
-     
     private void FitStackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FitStackActionPerformed
-            boolean imageOpenAlready = false;
-            String[] imageTitles = WindowManager.getImageTitles();
+        boolean imageOpenAlready = false;
+        String[] imageTitles = WindowManager.getImageTitles();
         for (String imageTitle : imageTitles) {
             if (imageTitle.contains("RateConstantsImage")) {
                 imageOpenAlready = true;
             }
         }
-            if(imageOpenAlready){
-                IJ.showMessage("Pixel Fitter", "Please close the existing rate constants image\nSorry, I'm getting confused");
+        if (imageOpenAlready) {
+            IJ.showMessage("Pixel Fitter", "Please close the existing rate constants image\nSorry, I'm getting confused");
+            return;
+        }
+        img = IJ.getImage();
+        if (img.isHyperStack() && chWarnOff == false) {
+            GenericDialog wfc = new GenericDialog("Channel confirmations");
+            wfc.addMessage("Have you selected the channel\nyou wish to fit?");
+            wfc.addCheckbox("Do not show this warning", false);
+            wfc.showDialog();
+            if (wfc.wasCanceled()) {
                 return;
             }
-            img = IJ.getImage();
-            if(img.isHyperStack() && chWarnOff==false){
-                GenericDialog wfc = new GenericDialog("Channel confirmations");
-        	wfc.addMessage("Have you selected the channel\nyou wish to fit?");
-        	wfc.addCheckbox("Do not show this warning", false);
-			wfc.showDialog();
-				if(wfc.wasCanceled())
-					return;
-                chWarnOff = wfc.getNextBoolean();
-            }
-            try {
-                psFRET_Fit_exponential();
-            } catch (Exception ex) {
-                Logger.getLogger(Pixel_Fitter.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            chWarnOff = wfc.getNextBoolean();
+        }
+        try {
+            psFRET_Fit_exponential();
+        } catch (Exception ex) {
+            Logger.getLogger(Pixel_Fitter.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_FitStackActionPerformed
 
     private void OpenStackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OpenStackActionPerformed
-      
+
         OpenDialog stackIsWhere = new OpenDialog("Choose a stack to open", null);
-        String dir = stackIsWhere.getDirectory(); 
+        String dir = stackIsWhere.getDirectory();
         String stackToOpen = stackIsWhere.getFileName();
-            id =  dir + stackToOpen;
-            try {
+        id = dir + stackToOpen;
+        try {
             //IJ.run("Bio-Formats", "open="+dir+stackToOpen+" autoscale color_mode=Default rois_import=[ROI manager] view=Hyperstack stack_order=XYCZT");
             ImagePlus[] imp = BF.openImagePlus(id);
             imp[0].show();
             img = IJ.getImage();
-            }
-            catch (FormatException exc) {
-                IJ.error("Sorry, an error occurred: " + exc.getMessage());
-            } catch (IOException ex) {
-                Logger.getLogger(Pixel_Fitter.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        } catch (FormatException exc) {
+            IJ.error("Sorry, an error occurred: " + exc.getMessage());
+        } catch (IOException ex) {
+            Logger.getLogger(Pixel_Fitter.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_OpenStackActionPerformed
 
     private void ExaminePixelsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExaminePixelsActionPerformed
-    /*if(rateDataG==null){
-            final int currentchannel = img.getC()-1;       
-            final int currentZ = img.getZ()-1;
-            final int nSlices = img.getNSlices();        
-            int size = img.getNFrames();
-                    if(size==1)//in case the stack is read as a Z stack instead of T stack
-                            size = nSlices;
-            try{
-                    timeData3 = getTimingPerPlane(id, size, currentZ, currentchannel);
-             }catch (Exception e){
-                    e.printStackTrace();
+        if (aZeroDataG == null || rateDataG == null || offsetDataG == null || R2G == null || Chi2G == null) {
+            img = IJ.getImage();
+            if (img.getTitle().contains("RateConstantsImage") || img.getTitle().contains("AZeroImage") || img.getTitle().contains("OffsetImage") || img.getTitle().contains("R2Image") || img.getTitle().contains("Chi2Image")) {
+                IJ.showMessage("Pixel Fitter", "Data image selected\nPlease select the raw image data set");
+                return;
             }
-            setUpListeners();
-        }else{
-              setUpListeners();
-          }
-    */
-        if(aZeroDataG==null || rateDataG==null || offsetDataG==null || R2G==null || Chi2G==null){ 
-        img = IJ.getImage();
-        if(img.getTitle().contains("RateConstantsImage")||img.getTitle().contains("AZeroImage")||img.getTitle().contains("OffsetImage")||img.getTitle().contains("R2Image")||img.getTitle().contains("Chi2Image")){
-            IJ.showMessage("Pixel Fitter", "Data image selected\nPlease select the raw image data set");
-            return;
-	}
-			//in case the image is opened without using the plugin BioFormats button
-	String dir0 = IJ.getDirectory("image"); 
-	String stackToOpen = img.getTitle();
-	String id2 =  dir0 + stackToOpen;
-	String fExt = id2.substring(id2.indexOf("."), id2.length());
-        if(fExt.contains(" ") && fExt.indexOf(" ")<id2.length())
-            fExt = fExt.substring(0, fExt.indexOf(" "));
-	id = id2.substring(0, id2.indexOf("."))+fExt;    
-		   	
+            //in case the image is opened without using the plugin BioFormats button
+            String dir0 = IJ.getDirectory("image");
+            String stackToOpen = img.getTitle();
+            String id2 = dir0 + stackToOpen;
+            String fExt = id2.substring(id2.indexOf("."), id2.length());
+            if (fExt.contains(" ") && fExt.indexOf(" ") < id2.length()) {
+                fExt = fExt.substring(0, fExt.indexOf(" "));
+            }
+            id = id2.substring(0, id2.indexOf(".")) + fExt;
+
             ImageStack img2 = img.getStack();
             imageH = img2.getHeight();
             imageW = img2.getWidth();
             imageD = img2.getBitDepth();
             imageZ = img2.getSize();
-            final int currentchannel = img.getC()-1;       
-            final int currentZ = img.getZ()-1;
-            final int nSlices = img.getNSlices();        
+            final int currentchannel = img.getC() - 1;
+            final int currentZ = img.getZ() - 1;
+            final int nSlices = img.getNSlices();
             int size = img.getNFrames();
-                    if(size==1)//in case the stack is read as a Z stack instead of T stack
-                            size = nSlices;
-            if(numCycles*imagesPerCycle > size){
+            if (size == 1)//in case the stack is read as a Z stack instead of T stack
+            {
+                size = nSlices;
+            }
+            if (numCycles * imagesPerCycle > size) {
                 IJ.showMessage("Pixel Fitter", "The number of cycles multiplied by the number images per cycle is larger than the stack");
                 return;
             }
-            try{
-                    timeData3 = getTimingPerPlane(id, size, currentZ, currentchannel);
-             }catch (Exception e){
-                    e.printStackTrace();
+            try {
+                timeData3 = getTimingPerPlane(id, size, currentZ, currentchannel);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-           
-            String id3 = id.substring(0, id.indexOf("."));           
- 	    	File f1 = new File(id3 +"_RateConstantsImage.tif");
-	        File f2 = new File(id3 +"_AZeroImage.tif");
-		File f3 = new File(id3 +"_OffsetImage.tif");
-		File f4 = new File(id3 +"_R2Image.tif");
-		File f5 = new File(id3 +"_Chi2Image.tif");
-		if(!f1.exists()||!f2.exists()||!f3.exists()||!f4.exists()||!f5.exists()){
-		    	IJ.showMessage("Pixel Fitter", "The analyzed data sets were not found in the directory with your image\n"+dir0+"\nHave you fit this dataset already?");
-	        	return;
-	       	}
-                    offsetImage = new Opener().openImage(id3 +"_OffsetImage.tif");    			
-	            offsetDataG= new double[imageW][imageH][numCycles];
-	            ImageStack stack = offsetImage.getStack();
- 	            if(stack.getSize()!=numCycles){
-	 	            IJ.showMessage("Pixel Fitter", "The size of offsetImage dataset does not match the number of cycles");
-	                return;	            	 
- 	            }
-    			for(int cyc=0;cyc<numCycles;cyc++){
-    				ImageProcessor ip = stack.getProcessor(cyc+1);
-	    			for(int x=0;x<imageW;x++){
-	    				for(int y=0;y<imageH;y++){
-	    					offsetDataG[x][y][cyc]=ip.getPixelValue(x, y);
-	    				}
-	    			}
-    			}
-    			
-                    aZeroImage = new Opener().openImage(id3 +"_AZeroImage.tif");
-	            aZeroDataG= new double[imageW][imageH][numCycles];
-	            stack = aZeroImage.getStack();
- 	            if(stack.getSize()!=numCycles){
-	 	            IJ.showMessage("Pixel Fitter", "The size of aZeroImage dataset does not match the number of cycles");
-	                return;	            	 
- 	            }
-    			for(int cyc=0;cyc<numCycles;cyc++){
-    				ImageProcessor ip = stack.getProcessor(cyc+1);
-	    			for(int x=0;x<imageW;x++){
-	    				for(int y=0;y<imageH;y++){
-	    					aZeroDataG[x][y][cyc]=ip.getPixelValue(x, y);
-	    				}
-	    			}
-    			}
 
-    			R2Image = new Opener().openImage(id3 +"_R2Image.tif");
-	            R2G= new double[imageW][imageH][numCycles];
-	            stack = R2Image.getStack();
- 	            if(stack.getSize()!=numCycles){
-	 	            IJ.showMessage("Pixel Fitter", "The size of R2Image dataset does not match the number of cycles");
-	                return;	            	 
- 	            }
-    			for(int cyc=0;cyc<numCycles;cyc++){
-    				ImageProcessor ip = stack.getProcessor(cyc+1);
-	    			for(int x=0;x<imageW;x++){
-	    				for(int y=0;y<imageH;y++){
-	    					R2G[x][y][cyc]=ip.getPixelValue(x, y);
-	    				}
-	    			}
-    			}
+            String id3 = id.substring(0, id.indexOf("."));
+            File f1 = new File(id3 + "_RateConstantsImage.tif");
+            File f2 = new File(id3 + "_AZeroImage.tif");
+            File f3 = new File(id3 + "_OffsetImage.tif");
+            File f4 = new File(id3 + "_R2Image.tif");
+            File f5 = new File(id3 + "_Chi2Image.tif");
+            if (!f1.exists() || !f2.exists() || !f3.exists() || !f4.exists() || !f5.exists()) {
+                IJ.showMessage("Pixel Fitter", "The analyzed data sets were not found in the directory with your image\n" + dir0 + "\nHave you fit this dataset already?");
+                return;
+            }
+            offsetImage = new Opener().openImage(id3 + "_OffsetImage.tif");
+            offsetDataG = new double[imageW][imageH][numCycles];
+            ImageStack stack = offsetImage.getStack();
+            if (stack.getSize() != numCycles) {
+                IJ.showMessage("Pixel Fitter", "The size of offsetImage dataset does not match the number of cycles");
+                return;
+            }
+            for (int cyc = 0; cyc < numCycles; cyc++) {
+                ImageProcessor ip = stack.getProcessor(cyc + 1);
+                for (int x = 0; x < imageW; x++) {
+                    for (int y = 0; y < imageH; y++) {
+                        offsetDataG[x][y][cyc] = ip.getPixelValue(x, y);
+                    }
+                }
+            }
 
-    			Chi2Image = new Opener().openImage(id3 +"_Chi2Image.tif");
-				Chi2G= new double[imageW][imageH][numCycles];
-	            stack = Chi2Image.getStack();
- 	            if(stack.getSize()!=numCycles){
-	 	            IJ.showMessage("Pixel Fitter", "The size of Chi2Image dataset does not match the number of cycles");
-	                return;	            	 
- 	            }
-    			for(int cyc=0;cyc<numCycles;cyc++){
-    				ImageProcessor ip = stack.getProcessor(cyc+1);
-	    			for(int x=0;x<imageW;x++){
-	    				for(int y=0;y<imageH;y++){
-	    					Chi2G[x][y][cyc]=ip.getPixelValue(x, y);
-	    				}
-	    			}
-    			}
+            aZeroImage = new Opener().openImage(id3 + "_AZeroImage.tif");
+            aZeroDataG = new double[imageW][imageH][numCycles];
+            stack = aZeroImage.getStack();
+            if (stack.getSize() != numCycles) {
+                IJ.showMessage("Pixel Fitter", "The size of aZeroImage dataset does not match the number of cycles");
+                return;
+            }
+            for (int cyc = 0; cyc < numCycles; cyc++) {
+                ImageProcessor ip = stack.getProcessor(cyc + 1);
+                for (int x = 0; x < imageW; x++) {
+                    for (int y = 0; y < imageH; y++) {
+                        aZeroDataG[x][y][cyc] = ip.getPixelValue(x, y);
+                    }
+                }
+            }
 
-            	rateConstantImage = new Opener().openImage(id3 +"_RateConstantsImage.tif");	
-	    		rateDataG= new double[imageW][imageH][numCycles];
-	            stack = rateConstantImage.getStack();
- 	            if(stack.getSize()!=numCycles){
-	 	            IJ.showMessage("Pixel Fitter", "The size of rateConstantImage dataset does not match the number of cycles");
-	                return;	            	 
- 	            }
-    			for(int cyc=0;cyc<numCycles;cyc++){
-    				ImageProcessor ip = stack.getProcessor(cyc+1);
-	    			for(int x=0;x<imageW;x++){
-	    				for(int y=0;y<imageH;y++){
-	    					rateDataG[x][y][cyc]=ip.getPixelValue(x, y);
-	    				}
-	    			}
-    			}
-    			rateConstantImage.show();
+            R2Image = new Opener().openImage(id3 + "_R2Image.tif");
+            R2G = new double[imageW][imageH][numCycles];
+            stack = R2Image.getStack();
+            if (stack.getSize() != numCycles) {
+                IJ.showMessage("Pixel Fitter", "The size of R2Image dataset does not match the number of cycles");
+                return;
+            }
+            for (int cyc = 0; cyc < numCycles; cyc++) {
+                ImageProcessor ip = stack.getProcessor(cyc + 1);
+                for (int x = 0; x < imageW; x++) {
+                    for (int y = 0; y < imageH; y++) {
+                        R2G[x][y][cyc] = ip.getPixelValue(x, y);
+                    }
+                }
+            }
 
+            Chi2Image = new Opener().openImage(id3 + "_Chi2Image.tif");
+            Chi2G = new double[imageW][imageH][numCycles];
+            stack = Chi2Image.getStack();
+            if (stack.getSize() != numCycles) {
+                IJ.showMessage("Pixel Fitter", "The size of Chi2Image dataset does not match the number of cycles");
+                return;
+            }
+            for (int cyc = 0; cyc < numCycles; cyc++) {
+                ImageProcessor ip = stack.getProcessor(cyc + 1);
+                for (int x = 0; x < imageW; x++) {
+                    for (int y = 0; y < imageH; y++) {
+                        Chi2G[x][y][cyc] = ip.getPixelValue(x, y);
+                    }
+                }
+            }
+
+            rateConstantImage = new Opener().openImage(id3 + "_RateConstantsImage.tif");
+            rateDataG = new double[imageW][imageH][numCycles];
+            stack = rateConstantImage.getStack();
+            if (stack.getSize() != numCycles) {
+                IJ.showMessage("Pixel Fitter", "The size of rateConstantImage dataset does not match the number of cycles");
+                return;
+            }
+            for (int cyc = 0; cyc < numCycles; cyc++) {
+                ImageProcessor ip = stack.getProcessor(cyc + 1);
+                for (int x = 0; x < imageW; x++) {
+                    for (int y = 0; y < imageH; y++) {
+                        rateDataG[x][y][cyc] = ip.getPixelValue(x, y);
+                    }
+                }
+            }
+            rateConstantImage.show();
 
             setUpListeners();
-        }else{
+        } else {
             setUpListeners();
-          }
-                  
+        }
+
     }//GEN-LAST:event_ExaminePixelsActionPerformed
 
 
-
-   
     private void MakeSaveFitParameterImageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MakeSaveFitParameterImageActionPerformed
-        if(aZeroDataG==null || rateDataG==null || offsetDataG==null || R2G==null || Chi2G==null){
+        if (aZeroDataG == null || rateDataG == null || offsetDataG == null || R2G == null || Chi2G == null) {
             IJ.showMessage("Pixel Fitter", "Fit parameter data unavailable");
-        }else{
-	    String id2 = id.substring(0, id.indexOf("."));
-            File f1 = new File(id2 +"_RateConstantsImage.tif");
-            File f2 = new File(id2 +"_AZeroImage.tif");
-            File f3 = new File(id2 +"_OffsetImage.tif");
-            File f4 = new File(id2 +"_R2Image.tif.tif");
-            File f5 = new File(id2 +"_Chi2Image.tif.tif");
-            if(f1.exists()||f2.exists()||f3.exists()||f4.exists()||f5.exists()){
+        } else {
+            String id2 = id.substring(0, id.indexOf("."));
+            File f1 = new File(id2 + "_RateConstantsImage.tif");
+            File f2 = new File(id2 + "_AZeroImage.tif");
+            File f3 = new File(id2 + "_OffsetImage.tif");
+            File f4 = new File(id2 + "_R2Image.tif.tif");
+            File f5 = new File(id2 + "_Chi2Image.tif.tif");
+            if (f1.exists() || f2.exists() || f3.exists() || f4.exists() || f5.exists()) {
                 GenericDialog gdEx = new GenericDialog("Pixel Fitter");
-        	gdEx.addMessage("Analyzed results files present for this image\n "+id2);
-        	gdEx.addCheckbox("Overwrite?", false);
-			gdEx.showDialog();
-				if(gdEx.wasCanceled())
-					return;
-        	boolean overWrite = gdEx.getNextBoolean();
-                if(overWrite){
+                gdEx.addMessage("Analyzed results files present for this image\n " + id2);
+                gdEx.addCheckbox("Overwrite?", false);
+                gdEx.showDialog();
+                if (gdEx.wasCanceled()) {
+                    return;
+                }
+                boolean overWrite = gdEx.getNextBoolean();
+                if (overWrite) {
                     ImagePlus imp = createRateConstantImage();
-                    IJ.saveAs(imp, "Tiff", id2 +"_RateConstantsImage.tif");
+                    IJ.saveAs(imp, "Tiff", id2 + "_RateConstantsImage.tif");
                     imp.close();
                     imp = createAZeroImage();
-                    IJ.saveAs(imp, "Tiff", id2 +"_AZeroImage.tif");
+                    IJ.saveAs(imp, "Tiff", id2 + "_AZeroImage.tif");
                     imp.close();
                     imp = createOffsetImage();
-                    IJ.saveAs(imp, "Tiff", id2 +"_OffsetImage.tif");
+                    IJ.saveAs(imp, "Tiff", id2 + "_OffsetImage.tif");
                     imp.close();
                     imp = createR2Image();
-                    IJ.saveAs(imp, "Tiff", id2 +"_R2Image.tif");
+                    IJ.saveAs(imp, "Tiff", id2 + "_R2Image.tif");
                     imp.close();
                     imp = createChi2Image();
-                    IJ.saveAs(imp, "Tiff", id2 +"_Chi2Image.tif");
+                    IJ.saveAs(imp, "Tiff", id2 + "_Chi2Image.tif");
                     imp.close();
                 }
-            }else{
-            ImagePlus imp = createRateConstantImage();
-            IJ.saveAs(imp, "Tiff", id2 +"_RateConstantsImage.tif");
-            imp.close();
-            imp = createAZeroImage();
-            IJ.saveAs(imp, "Tiff", id2 +"_AZeroImage.tif");
-            imp.close();
-            imp = createOffsetImage();
-            IJ.saveAs(imp, "Tiff", id2 +"_OffsetImage.tif");
-            imp.close();
-            imp = createR2Image();
-            IJ.saveAs(imp, "Tiff", id2 +"_R2Image.tif");
-            imp.close();
-            imp = createChi2Image();
-            IJ.saveAs(imp, "Tiff", id2 +"_Chi2Image.tif");
-            imp.close();
+            } else {
+                ImagePlus imp = createRateConstantImage();
+                IJ.saveAs(imp, "Tiff", id2 + "_RateConstantsImage.tif");
+                imp.close();
+                imp = createAZeroImage();
+                IJ.saveAs(imp, "Tiff", id2 + "_AZeroImage.tif");
+                imp.close();
+                imp = createOffsetImage();
+                IJ.saveAs(imp, "Tiff", id2 + "_OffsetImage.tif");
+                imp.close();
+                imp = createR2Image();
+                IJ.saveAs(imp, "Tiff", id2 + "_R2Image.tif");
+                imp.close();
+                imp = createChi2Image();
+                IJ.saveAs(imp, "Tiff", id2 + "_Chi2Image.tif");
+                imp.close();
             }
         }
     }//GEN-LAST:event_MakeSaveFitParameterImageActionPerformed
 
     private void imagesPerCycleTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_imagesPerCycleTFActionPerformed
-        try{
+        try {
             imagesPerCycle = Integer.parseInt(imagesPerCycleTF.getText());
         } catch (NumberFormatException e) {
             e.printStackTrace();
@@ -682,7 +659,7 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     }//GEN-LAST:event_imagesPerCycleTFActionPerformed
 
     private void numCyclesTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_numCyclesTFActionPerformed
-        try{
+        try {
             numCycles = Integer.parseInt(numCyclesTF.getText());
         } catch (NumberFormatException e) {
             e.printStackTrace();
@@ -690,7 +667,7 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     }//GEN-LAST:event_numCyclesTFActionPerformed
 
     private void imagesPerCycleTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_imagesPerCycleTFPropertyChange
-        try{
+        try {
             imagesPerCycle = Integer.parseInt(imagesPerCycleTF.getText());
         } catch (NumberFormatException e) {
             e.printStackTrace();
@@ -698,7 +675,7 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     }//GEN-LAST:event_imagesPerCycleTFPropertyChange
 
     private void numCyclesTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_numCyclesTFPropertyChange
-        try{
+        try {
             numCycles = Integer.parseInt(numCyclesTF.getText());
         } catch (NumberFormatException e) {
             e.printStackTrace();
@@ -706,7 +683,7 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     }//GEN-LAST:event_numCyclesTFPropertyChange
 
     private void R2CutOffTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_R2CutOffTFActionPerformed
-        try{
+        try {
             R2CutOff = Double.parseDouble(R2CutOffTF.getText());
         } catch (NumberFormatException e) {
             e.printStackTrace();
@@ -714,7 +691,7 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     }//GEN-LAST:event_R2CutOffTFActionPerformed
 
     private void R2CutOffTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_R2CutOffTFPropertyChange
-        try{
+        try {
             R2CutOff = Double.parseDouble(R2CutOffTF.getText());
         } catch (NumberFormatException e) {
             e.printStackTrace();
@@ -722,9 +699,9 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     }//GEN-LAST:event_R2CutOffTFPropertyChange
 
     private void makeRateConstantImageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_makeRateConstantImageActionPerformed
-        if(rateDataG==null){
+        if (rateDataG == null) {
             IJ.showMessage("Pixel Fitter", "No rate constant data available");
-        }else{
+        } else {
             boolean imageOpenAlready = false;
             String[] imageTitles = WindowManager.getImageTitles();
             for (String imageTitle : imageTitles) {
@@ -732,27 +709,32 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
                     imageOpenAlready = true;
                 }
             }
-            if(!imageOpenAlready)
+            if (!imageOpenAlready) {
                 rateConstantImage = createRateConstantImage();
+            }
         }
     }//GEN-LAST:event_makeRateConstantImageActionPerformed
 
     private void UseLogScaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UseLogScaleActionPerformed
-       if(UseLogScale.isSelected())
-           yLog=true;
-       if(!UseLogScale.isSelected())
-           yLog=false;
+        if (UseLogScale.isSelected()) {
+            yLog = true;
+        }
+        if (!UseLogScale.isSelected()) {
+            yLog = false;
+        }
     }//GEN-LAST:event_UseLogScaleActionPerformed
 
     private void logFitTimesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logFitTimesActionPerformed
-        if(logFitTimes.isSelected())
-           LogFitTime=true;
-       if(!logFitTimes.isSelected())
-           LogFitTime=false;
+        if (logFitTimes.isSelected()) {
+            LogFitTime = true;
+        }
+        if (!logFitTimes.isSelected()) {
+            LogFitTime = false;
+        }
     }//GEN-LAST:event_logFitTimesActionPerformed
 
     private void maxIterationsTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_maxIterationsTFActionPerformed
-        try{
+        try {
             maxiteration = Double.parseDouble(maxIterationsTF.getText());
         } catch (NumberFormatException e) {
             e.printStackTrace();
@@ -760,7 +742,7 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     }//GEN-LAST:event_maxIterationsTFActionPerformed
 
     private void maxIterationsTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_maxIterationsTFPropertyChange
-        try{
+        try {
             maxiteration = Double.parseDouble(maxIterationsTF.getText());
         } catch (NumberFormatException e) {
             e.printStackTrace();
@@ -768,7 +750,7 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     }//GEN-LAST:event_maxIterationsTFPropertyChange
 
     private void numRestartsTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_numRestartsTFActionPerformed
-         try{
+        try {
             numRestarts = Double.parseDouble(numRestartsTF.getText());
         } catch (NumberFormatException e) {
             e.printStackTrace();
@@ -776,7 +758,7 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     }//GEN-LAST:event_numRestartsTFActionPerformed
 
     private void numRestartsTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_numRestartsTFPropertyChange
-        try{
+        try {
             numRestarts = Double.parseDouble(numRestartsTF.getText());
         } catch (NumberFormatException e) {
             e.printStackTrace();
@@ -876,45 +858,47 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     private javax.swing.JFormattedTextField numRestartsTF;
     // End of variables declaration//GEN-END:variables
 
-
-public void psFRET_Fit_exponential() throws Exception {//implements PlugIn {
+    public void psFRET_Fit_exponential() throws Exception {//implements PlugIn {
 
         img = IJ.getImage();
         IJ.resetMinAndMax(img);
         //in case the image is opened without using the plugin BioFormats button
-        String dir0 = IJ.getDirectory("image"); 
+        String dir0 = IJ.getDirectory("image");
         String stackToOpen = img.getTitle();
-        String id2 =  dir0 + stackToOpen;
+        String id2 = dir0 + stackToOpen;
         String fExt = id2.substring(id2.indexOf("."), id2.length());
-	    if(fExt.contains(" ") && fExt.indexOf(" ")<id2.length())
-	    	fExt = fExt.substring(0, fExt.indexOf(" "));
-        id = id2.substring(0, id2.indexOf("."))+fExt;        
-        
+        if (fExt.contains(" ") && fExt.indexOf(" ") < id2.length()) {
+            fExt = fExt.substring(0, fExt.indexOf(" "));
+        }
+        id = id2.substring(0, id2.indexOf(".")) + fExt;
+
         final ImageStack img2 = img.getStack();
         imageH = img2.getHeight();
         imageW = img2.getWidth();
         imageD = img2.getBitDepth();
         imageZ = img2.getSize();
-        final int currentchannel = img.getC()-1;       
-        final int currentZ = img.getZ()-1;
-        final int nSlices = img.getNSlices();        
+        final int currentchannel = img.getC() - 1;
+        final int currentZ = img.getZ() - 1;
+        final int nSlices = img.getNSlices();
         int size = img.getNFrames();
-		if(size==1)//in case the stack is read as a Z stack instead of T stack
-			size = nSlices;
-        if(numCycles*imagesPerCycle > size){
+        if (size == 1)//in case the stack is read as a Z stack instead of T stack
+        {
+            size = nSlices;
+        }
+        if (numCycles * imagesPerCycle > size) {
             IJ.showMessage("Pixel Fitter", "The number of cycles multiplied by the number images per cycle is larger than the stack");
             return;
         }
-	try{
-        	timeData3 = getTimingPerPlane(id, size, currentZ, currentchannel);
-         }catch (Exception e){
-        	e.printStackTrace();
+        try {
+            timeData3 = getTimingPerPlane(id, size, currentZ, currentchannel);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-            rateDataG= new double[imageW][imageH][numCycles];
-            offsetDataG= new double[imageW][imageH][numCycles];
-            aZeroDataG= new double[imageW][imageH][numCycles];
-            R2G= new double[imageW][imageH][numCycles];
-            Chi2G= new double[imageW][imageH][numCycles];
+        rateDataG = new double[imageW][imageH][numCycles];
+        offsetDataG = new double[imageW][imageH][numCycles];
+        aZeroDataG = new double[imageW][imageH][numCycles];
+        R2G = new double[imageW][imageH][numCycles];
+        Chi2G = new double[imageW][imageH][numCycles];
 
         for (int cycle = 0; cycle < numCycles; cycle++) {
             final long startTime = System.currentTimeMillis();
@@ -923,7 +907,7 @@ public void psFRET_Fit_exponential() throws Exception {//implements PlugIn {
                 timeData2[k] = (timeData3[k + (cycle * imagesPerCycle)] - timeData3[cycle * imagesPerCycle]);
             }
             timeData = timeData2;
-                     
+
             final Thread[] threads = newThreadArray();
             //IJ.log("number of threads= " + threads.length);
             final double[][] timeDataArrayOfArrays = new double[threads.length][timeData.length];
@@ -939,30 +923,31 @@ public void psFRET_Fit_exponential() throws Exception {//implements PlugIn {
                     {
                         setPriority(Thread.NORM_PRIORITY);
                     }
+
                     @Override
                     public void run() {
-                        for (int y = threadIndex * height / threads.length; y < (threadIndex + 1) * height / threads.length; y++) {                        	
-                            if(threadIndex==threads.length-1){
-                            	int startY=threadIndex * height / threads.length;
-                            	int endY=(threadIndex + 1) * height / threads.length;
-                            	int progress = (int)Math.round(((double)(y-startY)/(endY-startY))*100);
-                            	IJ.showStatus("Fitting pixels progress: "+progress+" %  of cycle "+(cycleNum+1)+" of "+numCycles+" total cycles");
-							}
+                        for (int y = threadIndex * height / threads.length; y < (threadIndex + 1) * height / threads.length; y++) {
+                            if (threadIndex == threads.length - 1) {
+                                int startY = threadIndex * height / threads.length;
+                                int endY = (threadIndex + 1) * height / threads.length;
+                                int progress = (int) Math.round(((double) (y - startY) / (endY - startY)) * 100);
+                                IJ.showStatus("Fitting pixels progress: " + progress + " %  of cycle " + (cycleNum + 1) + " of " + numCycles + " total cycles");
+                            }
                             for (int x = 0; x < width; x++) {
                                 for (int z = 0; z < timeData.length; z++) {
                                     timeDataArrayOfArrays[threadIndex][z] = timeData[z];
-                                    if(img.isHyperStack()){
-	                                    int z2 = img.getStackIndex(img.getC(), img.getZ(), (cycleNum * imagesPerCycle) + z+1)-1;
-	                                    pixelsArrayOfArrays[threadIndex][z] = img2.getVoxel(x, y, z2);
-                                    }else{
-                                     	pixelsArrayOfArrays[threadIndex][z] = img2.getVoxel(x, y, (cycleNum * imagesPerCycle) + z);
+                                    if (img.isHyperStack()) {
+                                        int z2 = img.getStackIndex(img.getC(), img.getZ(), (cycleNum * imagesPerCycle) + z + 1) - 1;
+                                        pixelsArrayOfArrays[threadIndex][z] = img2.getVoxel(x, y, z2);
+                                    } else {
+                                        pixelsArrayOfArrays[threadIndex][z] = img2.getVoxel(x, y, (cycleNum * imagesPerCycle) + z);
                                     }
-                               }
+                                }
                                 CurveFitter cf = new CurveFitter(timeDataArrayOfArrays[threadIndex], pixelsArrayOfArrays[threadIndex]);
                                 double firstframeint = pixelsArrayOfArrays[threadIndex][0];
                                 double lastframeint = pixelsArrayOfArrays[threadIndex][pixelsArrayOfArrays[threadIndex].length - 1];
                                 double guess_a = firstframeint - lastframeint;
-                                double guess_b = 1/(guess_a*0.37);                                
+                                double guess_b = 1 / (guess_a * 0.37);
                                 double guess_c = lastframeint;
                                 if (guess_a <= 0) {
                                     aZeroDataG[x][y][cycleNum] = 0;
@@ -1006,24 +991,25 @@ public void psFRET_Fit_exponential() throws Exception {//implements PlugIn {
                                         Chi2G[x][y][cycleNum] = 0;
                                     }
                                 }
-                             }
+                            }
                         }
                     }
                 };
             }
             startAndJoin(threads);
-        long timeToCompletion = System.currentTimeMillis() - startTime;
-        if(LogFitTime==true)
-            IJ.log("Image "+id+" cycle "+cycle+" processing time = "+(timeToCompletion/1000)+" sec");
+            long timeToCompletion = System.currentTimeMillis() - startTime;
+            if (LogFitTime == true) {
+                IJ.log("Image " + id + " cycle " + cycle + " processing time = " + (timeToCompletion / 1000) + " sec");
+            }
         } //end of cycles  
         rateConstantImage = createRateConstantImage();
-     }
+    }
 
     public ImagePlus createRateConstantImage() {
         ImagePlus imp = IJ.createImage("RateConstantsImage", "32-bit", imageW, imageH, numCycles);
-        
-        for(int cyc=0;cyc<numCycles;cyc++){
-            imp.setSlice(cyc+1);
+
+        for (int cyc = 0; cyc < numCycles; cyc++) {
+            imp.setSlice(cyc + 1);
             ImageProcessor ip = imp.getProcessor();
             FloatProcessor fip = (FloatProcessor) ip.convertToFloat();
             for (int y = 0; y < imageH; y++) {
@@ -1035,17 +1021,17 @@ public void psFRET_Fit_exponential() throws Exception {//implements PlugIn {
                     }
                 }
             }
-        IJ.resetMinAndMax(imp);
-        } 
+            IJ.resetMinAndMax(imp);
+        }
         imp.show();
         return imp;
     }
-    
-        public ImagePlus createOffsetImage() {
+
+    public ImagePlus createOffsetImage() {
         ImagePlus imp = IJ.createImage("OffsetImage", "32-bit", imageW, imageH, numCycles);
-        
-        for(int cyc=0;cyc<numCycles;cyc++){
-            imp.setSlice(cyc+1);
+
+        for (int cyc = 0; cyc < numCycles; cyc++) {
+            imp.setSlice(cyc + 1);
             ImageProcessor ip = imp.getProcessor();
             FloatProcessor fip = (FloatProcessor) ip.convertToFloat();
             for (int y = 0; y < imageH; y++) {
@@ -1057,17 +1043,17 @@ public void psFRET_Fit_exponential() throws Exception {//implements PlugIn {
                     }
                 }
             }
-        IJ.resetMinAndMax(imp);
-        } 
+            IJ.resetMinAndMax(imp);
+        }
         imp.show();
         return imp;
     }
-        
+
     public ImagePlus createAZeroImage() {
         ImagePlus imp = IJ.createImage("AZeroImage", "32-bit", imageW, imageH, numCycles);
-        
-        for(int cyc=0;cyc<numCycles;cyc++){
-            imp.setSlice(cyc+1);
+
+        for (int cyc = 0; cyc < numCycles; cyc++) {
+            imp.setSlice(cyc + 1);
             ImageProcessor ip = imp.getProcessor();
             FloatProcessor fip = (FloatProcessor) ip.convertToFloat();
             for (int y = 0; y < imageH; y++) {
@@ -1079,17 +1065,17 @@ public void psFRET_Fit_exponential() throws Exception {//implements PlugIn {
                     }
                 }
             }
-        IJ.resetMinAndMax(imp);
-        } 
+            IJ.resetMinAndMax(imp);
+        }
         imp.show();
         return imp;
     }
-    
-        public ImagePlus createR2Image() {
+
+    public ImagePlus createR2Image() {
         ImagePlus imp = IJ.createImage("R2Image", "32-bit", imageW, imageH, numCycles);
-        
-        for(int cyc=0;cyc<numCycles;cyc++){
-            imp.setSlice(cyc+1);
+
+        for (int cyc = 0; cyc < numCycles; cyc++) {
+            imp.setSlice(cyc + 1);
             ImageProcessor ip = imp.getProcessor();
             FloatProcessor fip = (FloatProcessor) ip.convertToFloat();
             for (int y = 0; y < imageH; y++) {
@@ -1101,17 +1087,17 @@ public void psFRET_Fit_exponential() throws Exception {//implements PlugIn {
                     }
                 }
             }
-        IJ.resetMinAndMax(imp);
-        } 
+            IJ.resetMinAndMax(imp);
+        }
         imp.show();
         return imp;
     }
 
-        public ImagePlus createChi2Image() {
+    public ImagePlus createChi2Image() {
         ImagePlus imp = IJ.createImage("Chi2Image", "32-bit", imageW, imageH, numCycles);
-        
-        for(int cyc=0;cyc<numCycles;cyc++){
-            imp.setSlice(cyc+1);
+
+        for (int cyc = 0; cyc < numCycles; cyc++) {
+            imp.setSlice(cyc + 1);
             ImageProcessor ip = imp.getProcessor();
             FloatProcessor fip = (FloatProcessor) ip.convertToFloat();
             for (int y = 0; y < imageH; y++) {
@@ -1123,21 +1109,20 @@ public void psFRET_Fit_exponential() throws Exception {//implements PlugIn {
                     }
                 }
             }
-        IJ.resetMinAndMax(imp);
-        } 
+            IJ.resetMinAndMax(imp);
+        }
         imp.show();
         return imp;
     }
 
-    
-public void setUpListeners(){
+    public void setUpListeners() {
         String[] imageTitles = WindowManager.getImageTitles();
-        listenersRemoved=false;
+        listenersRemoved = false;
         ImageWindow win = img.getWindow();
         win.addWindowListener(win);
         canvas = win.getCanvas();
         canvas.addMouseListener(this);
-        
+
         for (String imageTitle : imageTitles) {
             if (imageTitle.contains("RateConstantsImage")) {
                 rateConstantImage = WindowManager.getImage(imageTitle);
@@ -1147,146 +1132,150 @@ public void setUpListeners(){
                 canvas2.addMouseListener(this);
             }
         }
-        
+
         xAxis = timeData3;
         xLabel = "Time (sec)";
         yLabel = "Fluorescence";
-}
+    }
 
-    
-   void positionPlotWindow() {
+    void positionPlotWindow() {
         IJ.wait(500);
-        if (pwin==null || img==null) return;
-           ImageWindow iwin = img.getWindow();
-        if (iwin==null) return;
-           Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-           Dimension plotSize = pwin.getSize();
-           Dimension imageSize = iwin.getSize();
-        if (plotSize.width==0 || imageSize.width==0) return;
-           Point imageLoc = iwin.getLocation();
-        int w = imageLoc.x+imageSize.width+10;
-        if (w+plotSize.width>screen.width)
-           w = screen.width-plotSize.width;
+        if (pwin == null || img == null) {
+            return;
+        }
+        ImageWindow iwin = img.getWindow();
+        if (iwin == null) {
+            return;
+        }
+        Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+        Dimension plotSize = pwin.getSize();
+        Dimension imageSize = iwin.getSize();
+        if (plotSize.width == 0 || imageSize.width == 0) {
+            return;
+        }
+        Point imageLoc = iwin.getLocation();
+        int w = imageLoc.x + imageSize.width + 10;
+        if (w + plotSize.width > screen.width) {
+            w = screen.width - plotSize.width;
+        }
         pwin.setLocation(w, imageLoc.y);
         iwin.toFront();
-   }
+    }
 
     @Override
     public void mousePressed(MouseEvent e) {
 //Gets the Z values through a single point at (x,y). 
-            
-             ImageStack stack = img.getStack();
-             int size = stack.getSize(); 
-             double[] values = new double[size];
-                xpoint = e.getX();
-                ypoint = e.getY();
-                float[] cTable = img.getCalibration().getCTable();
-                if(img.isHyperStack()){
-                    for (int p=1; p<=img.getNFrames(); p++){
-                        int z2 = img.getStackIndex(img.getC(), img.getZ(), p)-1;
-                        values[p-1] = stack.getVoxel(xpoint, ypoint, z2);
-                    }
-                }else{
-                    for (int p=1; p<=size; p++){
-                       ImageProcessor ip = stack.getProcessor(p);
-                       ip.setCalibrationTable(cTable);
-                       values[p-1] = ip.getPixelValue(xpoint, ypoint);
-                    }
-                }
-             
-            img.setRoi(xpoint,ypoint,1,1);
-            rateConstantImage.setRoi(xpoint,ypoint,1,1);
-            yAxis = values;
-            xAxis = timeData3;
-            if(size>numCycles*imagesPerCycle){
-              double [] yAxis2 = new double[numCycles*imagesPerCycle];
-              double [] xAxis2 = new double[numCycles*imagesPerCycle];
-              for(int i=0;i<numCycles*imagesPerCycle;i++){
-                   yAxis2 [i]= yAxis[i];
-                   xAxis2 [i]= xAxis[i];
-                }
-                yAxis = yAxis2;
-                xAxis = xAxis2;
+
+        ImageStack stack = img.getStack();
+        int size = stack.getSize();
+        double[] values = new double[size];
+        xpoint = e.getX();
+        ypoint = e.getY();
+        float[] cTable = img.getCalibration().getCTable();
+        if (img.isHyperStack()) {
+            for (int p = 1; p <= img.getNFrames(); p++) {
+                int z2 = img.getStackIndex(img.getC(), img.getZ(), p) - 1;
+                values[p - 1] = stack.getVoxel(xpoint, ypoint, z2);
             }
-            updateProfile(xAxis, yAxis);
+        } else {
+            for (int p = 1; p <= size; p++) {
+                ImageProcessor ip = stack.getProcessor(p);
+                ip.setCalibrationTable(cTable);
+                values[p - 1] = ip.getPixelValue(xpoint, ypoint);
+            }
+        }
+
+        img.setRoi(xpoint, ypoint, 1, 1);
+        rateConstantImage.setRoi(xpoint, ypoint, 1, 1);
+        yAxis = values;
+        xAxis = timeData3;
+        if (size > numCycles * imagesPerCycle) {
+            double[] yAxis2 = new double[numCycles * imagesPerCycle];
+            double[] xAxis2 = new double[numCycles * imagesPerCycle];
+            for (int i = 0; i < numCycles * imagesPerCycle; i++) {
+                yAxis2[i] = yAxis[i];
+                xAxis2[i] = xAxis[i];
+            }
+            yAxis = yAxis2;
+            xAxis = xAxis2;
+        }
+        updateProfile(xAxis, yAxis);
 
     }
-  
-
 
     void updateProfile(double[] x, double[] y) {
-	if (!isSelection())
+        if (!isSelection()) {
             return;
-	checkPlotWindow();
-	if (listenersRemoved || y==null || y.length==0)
+        }
+        checkPlotWindow();
+        if (listenersRemoved || y == null || y.length == 0) {
             return;
-	Plot plot = new Plot("Data and fit", xLabel, yLabel);
+        }
+        Plot plot = new Plot("Data and fit", xLabel, yLabel);
         plot.setAxisYLog(yLog);
-        
+
         plot.add("circles", x, y);
-        double [] fitToAdd = new double [x.length];
-        double [] yForResiduals = new double [x.length];
-        if(rateDataG!=null){
-            for(int c=0;c<numCycles;c++){
-            double [] fitValues = new double [3];
-            fitValues[0] = aZeroDataG[xpoint][ypoint][c];
-            fitValues[1] = rateDataG[xpoint][ypoint][c];
-            fitValues[2] = offsetDataG[xpoint][ypoint][c];
-            double [] x2 = new double [imagesPerCycle];
-            for(int i=0;i<x2.length;i++){
-                x2[i]=x[(c*imagesPerCycle)+i]-x[c*imagesPerCycle];
-            }
-            double [] fitPerCycle = getTheFit(fitValues, x2);
-            for(int i=0;i<fitPerCycle.length;i++){
-                fitToAdd[(c*imagesPerCycle)+i] =fitPerCycle[i];
-                yForResiduals[(c*imagesPerCycle)+i] =y[(c*imagesPerCycle)+i];
-            }
-            String labelToAddA = "A="+String.valueOf((double)Math.round(fitValues[0]*1000)/1000);
-            String labelToAddK = "k="+String.valueOf((double)Math.round(fitValues[1]*1000)/1000);
-            String labelToAddC = "offset="+String.valueOf((double)Math.round(fitValues[2]*1000)/1000);
-            String labelToAddR2 = "R2="+String.valueOf((double)Math.round(R2G[xpoint][ypoint][c]*1000)/1000);
-            String labelToAddChi2 = "Chi2="+String.valueOf((double)Math.round(Chi2G[xpoint][ypoint][c]*1000)/1000);
-            plot.addLabel(c*0.35+0.05,0.1,labelToAddA);
-            plot.addLabel(c*0.35+0.05,0.15,labelToAddK);
-            plot.addLabel(c*0.35+0.05,0.2,labelToAddC);
-            plot.addLabel(c*0.35+0.05,0.25,labelToAddR2);
-            plot.addLabel(c*0.35+0.05,0.3,labelToAddChi2);
-            /*plot.addLabel(c*0.35+0.05,0.6,labelToAddA);
-            plot.addLabel(c*0.35+0.05,0.65,labelToAddK);
-            plot.addLabel(c*0.35+0.05,0.7,labelToAddC);
-            plot.addLabel(c*0.35+0.05,0.75,labelToAddR2);
-            plot.addLabel(c*0.35+0.05,0.8,labelToAddChi2);*/
+        double[] fitToAdd = new double[x.length];
+        double[] yForResiduals = new double[x.length];
+        if (rateDataG != null) {
+            for (int c = 0; c < numCycles; c++) {
+                double[] fitValues = new double[3];
+                fitValues[0] = aZeroDataG[xpoint][ypoint][c];
+                fitValues[1] = rateDataG[xpoint][ypoint][c];
+                fitValues[2] = offsetDataG[xpoint][ypoint][c];
+                double[] x2 = new double[imagesPerCycle];
+                for (int i = 0; i < x2.length; i++) {
+                    x2[i] = x[(c * imagesPerCycle) + i] - x[c * imagesPerCycle];
+                }
+                double[] fitPerCycle = getTheFit(fitValues, x2);
+                for (int i = 0; i < fitPerCycle.length; i++) {
+                    fitToAdd[(c * imagesPerCycle) + i] = fitPerCycle[i];
+                    yForResiduals[(c * imagesPerCycle) + i] = y[(c * imagesPerCycle) + i];
+                }
+                String labelToAddA = "A=" + String.valueOf((double) Math.round(fitValues[0] * 1000) / 1000);
+                String labelToAddK = "k=" + String.valueOf((double) Math.round(fitValues[1] * 1000) / 1000);
+                String labelToAddC = "offset=" + String.valueOf((double) Math.round(fitValues[2] * 1000) / 1000);
+                String labelToAddR2 = "R2=" + String.valueOf((double) Math.round(R2G[xpoint][ypoint][c] * 1000) / 1000);
+                String labelToAddChi2 = "Chi2=" + String.valueOf((double) Math.round(Chi2G[xpoint][ypoint][c] * 1000) / 1000);
+                plot.addLabel(c * 0.35 + 0.05, 0.1, labelToAddA);
+                plot.addLabel(c * 0.35 + 0.05, 0.15, labelToAddK);
+                plot.addLabel(c * 0.35 + 0.05, 0.2, labelToAddC);
+                plot.addLabel(c * 0.35 + 0.05, 0.25, labelToAddR2);
+                plot.addLabel(c * 0.35 + 0.05, 0.3, labelToAddChi2);
             }
             plot.add("line", x, fitToAdd);
         }
-        
-        
-	double ymin = ProfilePlot.getFixedMin();
-	double ymax= ProfilePlot.getFixedMax();
-	if (!(ymin==0.0 && ymax==0.0)) {
-		double[] a = Tools.getMinMax(x);
-		double xmin=a[0]; double xmax=a[1];
-		plot.setLimits(xmin, xmax, ymin, ymax);
-	}
-        Plot plotResiduals = new Plot("Residuals", xLabel, yLabel);
-        if(rateDataG!=null){
-        double [] resArray = subtractArrayFromArray(yForResiduals,fitToAdd);
-        plotResiduals.add("circles", x, resArray);
-        if (!(ymin==0.0 && ymax==0.0)) {
-		double[] a = Tools.getMinMax(x);
-		double xmin=a[0]; double xmax=a[1];
-		plotResiduals.setLimits(xmin, xmax, ymin, ymax);
-	}
+
+        double ymin = ProfilePlot.getFixedMin();
+        double ymax = ProfilePlot.getFixedMax();
+        if (!(ymin == 0.0 && ymax == 0.0)) {
+            double[] a = Tools.getMinMax(x);
+            double xmin = a[0];
+            double xmax = a[1];
+            plot.setLimits(xmin, xmax, ymin, ymax);
         }
-	if (pwin==null)
+        Plot plotResiduals = new Plot("Residuals", xLabel, yLabel);
+        if (rateDataG != null) {
+            double[] resArray = subtractArrayFromArray(yForResiduals, fitToAdd);
+            plotResiduals.add("circles", x, resArray);
+            if (!(ymin == 0.0 && ymax == 0.0)) {
+                double[] a = Tools.getMinMax(x);
+                double xmin = a[0];
+                double xmax = a[1];
+                plotResiduals.setLimits(xmin, xmax, ymin, ymax);
+            }
+        }
+        if (pwin == null) {
             pwin = plot.show();
-        else
+        } else {
             pwin.drawPlot(plot);
-        if(rateDataG!=null){
-	if (pwin2==null)
-            pwin2 = plotResiduals.show();
-        else
-            pwin2.drawPlot(plotResiduals); 
+        }
+        if (rateDataG != null) {
+            if (pwin2 == null) {
+                pwin2 = plotResiduals.show();
+            } else {
+                pwin2.drawPlot(plotResiduals);
+            }
         }
     }
 
@@ -1297,34 +1286,52 @@ public void setUpListeners(){
 
     // stop listening for mouse and key events if the plot window has been closed
     void checkPlotWindow() {
-       if (pwin==null)
-           return;
-       if (pwin.isVisible()) 
-           return;
-       ImageWindow iwin = img.getWindow();
-       if (iwin==null)
+        if (pwin == null) {
             return;
-       canvas = iwin.getCanvas();
-       canvas.removeMouseListener(this);
-       ImageWindow iwin2 = rateConstantImage.getWindow();
-       canvas2 = iwin2.getCanvas();
-       canvas2.removeMouseListener(this);
-       pwin = null;
-       pwin2 = null;
-       listenersRemoved = true;
+        }
+        if (pwin.isVisible()) {
+            return;
+        }
+        ImageWindow iwin = img.getWindow();
+        if (iwin == null) {
+            return;
+        }
+        canvas = iwin.getCanvas();
+        canvas.removeMouseListener(this);
+        ImageWindow iwin2 = rateConstantImage.getWindow();
+        canvas2 = iwin2.getCanvas();
+        canvas2.removeMouseListener(this);
+        pwin = null;
+        pwin2 = null;
+        listenersRemoved = true;
     }
 
-    public void keyPressed(KeyEvent e) {}
-    public void keyTyped(KeyEvent e) {}
-    public void mouseReleased(MouseEvent e) {}
-    public void mouseExited(MouseEvent e) {}
-    public void mouseClicked(MouseEvent e) {}   
-    public void mouseEntered(MouseEvent e) {}
-    public void mouseMoved(MouseEvent e) {}
-    public void mouseDragged(MouseEvent e) {}  
-    public void keyReleased(KeyEvent e) {}
-    
-    
+    public void keyPressed(KeyEvent e) {
+    }
+
+    public void keyTyped(KeyEvent e) {
+    }
+
+    public void mouseReleased(MouseEvent e) {
+    }
+
+    public void mouseExited(MouseEvent e) {
+    }
+
+    public void mouseClicked(MouseEvent e) {
+    }
+
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    public void mouseMoved(MouseEvent e) {
+    }
+
+    public void mouseDragged(MouseEvent e) {
+    }
+
+    public void keyReleased(KeyEvent e) {
+    }
 
     public double[] getTheFit(double[] fitParameters, double[] timePoints) {
         double[] theFit = new double[timePoints.length];
@@ -1338,124 +1345,127 @@ public void setUpListeners(){
         double offsetToSubtract = 0;
         double chi2ToReturn = 0;
         int dataPoints = 0;
-        double [] residualArray2 = multiplyTwoArrays(residualArray, residualArray);
-        double [] offsetSubtractedArray = subtractValueFromArray(theOtherArray,offsetToSubtract);
-        double [] arrayToSum = divideTwoArrays(residualArray2, offsetSubtractedArray);
+        double[] residualArray2 = multiplyTwoArrays(residualArray, residualArray);
+        double[] offsetSubtractedArray = subtractValueFromArray(theOtherArray, offsetToSubtract);
+        double[] arrayToSum = divideTwoArrays(residualArray2, offsetSubtractedArray);
         for (int tp = 0; tp < arrayToSum.length; tp++) {
-            if(!Double.isInfinite(arrayToSum[tp])){
+            if (!Double.isInfinite(arrayToSum[tp])) {
                 chi2ToReturn = chi2ToReturn + arrayToSum[tp];
                 dataPoints++;
             }
         }
-        return chi2ToReturn/(dataPoints-3-1);//divide by number of data points minus number of fitting parameters minus one
+        return chi2ToReturn / (dataPoints - 3 - 1);//divide by number of data points minus number of fitting parameters minus one
     }
 
-
-    /** Create a Thread[] array as large as the number of processors available. 
-    * From Stephan Preibisch's Multithreading.java class. See: 
-    * http://repo.or.cz/w/trakem2.git?a=blob;f=mpi/fruitfly/general/MultiThreading.java;hb=HEAD 
-    */  
-    private Thread[] newThreadArray() {  
-        int n_cpus = Runtime.getRuntime().availableProcessors();  
+    /**
+     * Create a Thread[] array as large as the number of processors available.
+     * From Stephan Preibisch's Multithreading.java class. See:
+     * http://repo.or.cz/w/trakem2.git?a=blob;f=mpi/fruitfly/general/MultiThreading.java;hb=HEAD
+     */
+    private Thread[] newThreadArray() {
+        int n_cpus = Runtime.getRuntime().availableProcessors();
         return new Thread[n_cpus];
-    }  
-  
-    /** Start all given threads and wait on each of them until all are done. 
-    * From Stephan Preibisch's Multithreading.java class. See: 
-    * http://repo.or.cz/w/trakem2.git?a=blob;f=mpi/fruitfly/general/MultiThreading.java;hb=HEAD 
+    }
+
+    /**
+     * Start all given threads and wait on each of them until all are done. From
+     * Stephan Preibisch's Multithreading.java class. See:
+     * http://repo.or.cz/w/trakem2.git?a=blob;f=mpi/fruitfly/general/MultiThreading.java;hb=HEAD
+     *
      * @param threads
-    */  
-    public static void startAndJoin(Thread[] threads)  
-    {  
-        for (int ithread = 0; ithread < threads.length; ++ithread)  
-        {  
-            threads[ithread].setPriority(Thread.NORM_PRIORITY);  
-            threads[ithread].start();  
-        }  
-  
-        try  
-        {     
-            for (int ithread = 0; ithread < threads.length; ++ithread)  
-                threads[ithread].join();  
-        } catch (InterruptedException ie)  
-        {  
-            throw new RuntimeException(ie);  
-        } 
-    }  
-  
-    
-    public double[] getArrayStatistics (double[] theArray)
-    {
-    
+     */
+    public static void startAndJoin(Thread[] threads) {
+        for (int ithread = 0; ithread < threads.length; ++ithread) {
+            threads[ithread].setPriority(Thread.NORM_PRIORITY);
+            threads[ithread].start();
+        }
+
+        try {
+            for (int ithread = 0; ithread < threads.length; ++ithread) {
+                threads[ithread].join();
+            }
+        } catch (InterruptedException ie) {
+            throw new RuntimeException(ie);
+        }
+    }
+
+    public double[] getArrayStatistics(double[] theArray) {
+
         double min = theArray[0];
         double max = theArray[0];
         double sum = 0;
-        for(int i=0;i<theArray.length;i++){
-            if(theArray[i]<min)
-                min=theArray[i];
-            if(theArray[i]>max)
-                max=theArray[i];
+        for (int i = 0; i < theArray.length; i++) {
+            if (theArray[i] < min) {
+                min = theArray[i];
+            }
+            if (theArray[i] > max) {
+                max = theArray[i];
+            }
             sum = sum + theArray[i];
         }
-        double mean = sum/theArray.length;
-        double [] returnArray = {min,max,sum,mean};
+        double mean = sum / theArray.length;
+        double[] returnArray = {min, max, sum, mean};
         return returnArray;
     }
 
-    
     private double[] getTimingPerPlane(String arg, int tPoints, int currZ, int currCh) throws Exception {
-    String fExt = arg.substring(arg.indexOf("."), arg.length());
-	    if(fExt.contains(" ") && fExt.indexOf(" ")<arg.length())
-	    	fExt = fExt.substring(0, fExt.indexOf(" "));
-	    String id2 = arg.substring(0, arg.indexOf("."))+fExt;
-	    double[] timeStampsToReturn = new double[tPoints];
-	    IFormatReader reader = null;
-	    int series = 0;
-	try{
-    	ServiceFactory factory = new ServiceFactory();
-     	OMEXMLService service = factory.getInstance(OMEXMLService.class);
-    	IMetadata meta = service.createOMEXMLMetadata();
-    	// create format reader
-    	reader = new ImageReader();
-    	reader.setMetadataStore(meta);
-     	// initialize file
-    	reader.setId(id2);
-        
-    	int seriesCount = reader.getSeriesCount();
-			
-	   if (series < seriesCount) 
-	    	reader.setSeries(series);
-	    series = reader.getSeries();
-	    int planeCount = meta.getPlaneCount(series);
-		int tCounter=0;
-	    for (int i = 0; i < planeCount; i++) {
-	      Time deltaT = meta.getPlaneDeltaT(series, i);
-	      if (deltaT == null) continue;
-	      // convert plane ZCT coordinates into image plane index
-	      int z = meta.getPlaneTheZ(series, i).getValue();
-	      int c = meta.getPlaneTheC(series, i).getValue();
-	      int t = meta.getPlaneTheT(series, i).getValue();
-	        if(z==currZ && c==currCh){
-	        	timeStampsToReturn[tCounter] = deltaT.value(UNITS.SECOND).doubleValue();
-	        	tCounter++;
-	        }
-	    }
-        if(planeCount==0){
-        	GenericDialog gd2 = new GenericDialog("Problem with metadata");
-        	gd2.addMessage("Time information from metadata was not found");
-        	gd2.addMessage("Would you like to enter the time interval manually?");
-        	gd2.addNumericField("Time between images in seconds", 0.050, 3);
-			gd2.showDialog();
-				if(gd2.wasCanceled())
-					return null;
-        	double userDeltaT = gd2.getNextNumber();
-	        for(int t=0; t<timeStampsToReturn.length;t++){
-	        	timeStampsToReturn[t] = t*userDeltaT;
-	        }
-        }	    
-		} catch (IOException e) {
+        String fExt = arg.substring(arg.indexOf("."), arg.length());
+        if (fExt.contains(" ") && fExt.indexOf(" ") < arg.length()) {
+            fExt = fExt.substring(0, fExt.indexOf(" "));
+        }
+        String id2 = arg.substring(0, arg.indexOf(".")) + fExt;
+        double[] timeStampsToReturn = new double[tPoints];
+        IFormatReader reader = null;
+        int series = 0;
+        try {
+            ServiceFactory factory = new ServiceFactory();
+            OMEXMLService service = factory.getInstance(OMEXMLService.class);
+            IMetadata meta = service.createOMEXMLMetadata();
+            // create format reader
+            reader = new ImageReader();
+            reader.setMetadataStore(meta);
+            // initialize file
+            reader.setId(id2);
+
+            int seriesCount = reader.getSeriesCount();
+
+            if (series < seriesCount) {
+                reader.setSeries(series);
+            }
+            series = reader.getSeries();
+            int planeCount = meta.getPlaneCount(series);
+            int tCounter = 0;
+            for (int i = 0; i < planeCount; i++) {
+                Time deltaT = meta.getPlaneDeltaT(series, i);
+                if (deltaT == null) {
+                    continue;
+                }
+                // convert plane ZCT coordinates into image plane index
+                int z = meta.getPlaneTheZ(series, i).getValue();
+                int c = meta.getPlaneTheC(series, i).getValue();
+                int t = meta.getPlaneTheT(series, i).getValue();
+                if (z == currZ && c == currCh) {
+                    timeStampsToReturn[tCounter] = deltaT.value(UNITS.SECOND).doubleValue();
+                    tCounter++;
+                }
+            }
+            if (planeCount == 0) {
+                GenericDialog gd2 = new GenericDialog("Problem with metadata");
+                gd2.addMessage("Time information from metadata was not found");
+                gd2.addMessage("Would you like to enter the time interval manually?");
+                gd2.addNumericField("Time between images in seconds", 0.050, 3);
+                gd2.showDialog();
+                if (gd2.wasCanceled()) {
+                    return null;
+                }
+                double userDeltaT = gd2.getNextNumber();
+                for (int t = 0; t < timeStampsToReturn.length; t++) {
+                    timeStampsToReturn[t] = t * userDeltaT;
+                }
+            }
+        } catch (IOException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             try {
                 if (reader != null) {
                     reader.close();
@@ -1465,76 +1475,70 @@ public void setUpListeners(){
             }
         }
         return timeStampsToReturn;
-  }
+    }
 
-    
     private ImagePlus applyLookupTables(IFormatReader r, ImagePlus imp,
-    byte[][][] lookupTable)
-  {
-    // apply color lookup tables, if present
-    // this requires ImageJ v1.39 or higher
-    if (r.isIndexed()) {
-      CompositeImage composite =
-        new CompositeImage(imp, CompositeImage.COLOR);
-      for (int c=0; c<r.getSizeC(); c++) {
-        composite.setPosition(c + 1, 1, 1);
-        LUT lut =
-          new LUT(lookupTable[c][0], lookupTable[c][1], lookupTable[c][2]);
-        composite.setChannelLut(lut);
-      }
-      composite.setPosition(1, 1, 1);
-      return composite;
+            byte[][][] lookupTable) {
+        // apply color lookup tables, if present
+        // this requires ImageJ v1.39 or higher
+        if (r.isIndexed()) {
+            CompositeImage composite
+                    = new CompositeImage(imp, CompositeImage.COLOR);
+            for (int c = 0; c < r.getSizeC(); c++) {
+                composite.setPosition(c + 1, 1, 1);
+                LUT lut
+                        = new LUT(lookupTable[c][0], lookupTable[c][1], lookupTable[c][2]);
+                composite.setChannelLut(lut);
+            }
+            composite.setPosition(1, 1, 1);
+            return composite;
+        }
+        return imp;
     }
-    return imp;
-  }
-    
-    private static double [] subtractArrayFromArray(double [] array1, double [] array2){
-	if(array1.length!=array2.length){
+
+    private static double[] subtractArrayFromArray(double[] array1, double[] array2) {
+        if (array1.length != array2.length) {
             IJ.showMessage("Pixel Fitter", "The time and data arrays are not the same length");
             return null;
         }
-        double [] arrayToReturn = new double [array1.length];
-	for(int i=0; i<array1.length;i++){
-            arrayToReturn[i]=array1[i]-array2[i];
-	}
+        double[] arrayToReturn = new double[array1.length];
+        for (int i = 0; i < array1.length; i++) {
+            arrayToReturn[i] = array1[i] - array2[i];
+        }
         return arrayToReturn;
 
     }
-    
-    private static double [] multiplyTwoArrays(double [] array1, double [] array2){
-	if(array1.length!=array2.length){
+
+    private static double[] multiplyTwoArrays(double[] array1, double[] array2) {
+        if (array1.length != array2.length) {
             IJ.showMessage("Pixel Fitter", "The time and data arrays are not the same length");
             return null;
         }
-	double [] arrayToReturn = new double [array1.length];
-	for(int i=0; i<array1.length;i++){
-            arrayToReturn[i]=array1[i]*array2[i];
-	}
+        double[] arrayToReturn = new double[array1.length];
+        for (int i = 0; i < array1.length; i++) {
+            arrayToReturn[i] = array1[i] * array2[i];
+        }
         return arrayToReturn;
     }
-    
-    private static double [] divideTwoArrays(double [] array1, double [] array2){
-	if(array1.length!=array2.length){
+
+    private static double[] divideTwoArrays(double[] array1, double[] array2) {
+        if (array1.length != array2.length) {
             IJ.showMessage("Pixel Fitter", "The time and data arrays are not the same length");
             return null;
         }
-	double [] arrayToReturn = new double [array1.length];
-	for(int i=0; i<array1.length;i++){
-            arrayToReturn[i]=array1[i]/array2[i];
-	}
+        double[] arrayToReturn = new double[array1.length];
+        for (int i = 0; i < array1.length; i++) {
+            arrayToReturn[i] = array1[i] / array2[i];
+        }
         return arrayToReturn;
     }
-    
-private static double [] subtractValueFromArray(double [] array1, double theValue){
-        double [] arrayToReturn = new double [array1.length];
-	for(int i=0; i<array1.length;i++){
-            arrayToReturn[i]=array1[i]-theValue;
- 	}
+
+    private static double[] subtractValueFromArray(double[] array1, double theValue) {
+        double[] arrayToReturn = new double[array1.length];
+        for (int i = 0; i < array1.length; i++) {
+            arrayToReturn[i] = array1[i] - theValue;
+        }
         return arrayToReturn;
     }
-    
 
 }
-
-
-
