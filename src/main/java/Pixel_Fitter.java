@@ -86,7 +86,7 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     boolean LogFitTime;
     int maxiteration;
     int numRestarts;
-    int estimateSigma;
+    int estimateS2;
     
     /**
      * Creates new form NewJFrame
@@ -128,8 +128,8 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
         maxIterationsTF = new javax.swing.JFormattedTextField();
         numRestartsLabel = new javax.swing.JLabel();
         numRestartsTF = new javax.swing.JFormattedTextField();
-        estimateSigmaLabel = new javax.swing.JLabel();
-        estimateSigmaTF = new javax.swing.JFormattedTextField();
+        estimateS2Label = new javax.swing.JLabel();
+        estimateS2TF = new javax.swing.JFormattedTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Photoswitching Pixel Fitter");
@@ -321,18 +321,18 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
             }
         });
 
-        estimateSigmaLabel.setText("Estimate sigma data points");
+        estimateS2Label.setText("Estimate sigma data points");
 
-        estimateSigmaTF.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        estimateSigmaTF.setText("50");
-        estimateSigmaTF.addActionListener(new java.awt.event.ActionListener() {
+        estimateS2TF.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        estimateS2TF.setText("50");
+        estimateS2TF.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                estimateSigmaTFActionPerformed(evt);
+                estimateS2TFActionPerformed(evt);
             }
         });
-        estimateSigmaTF.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+        estimateS2TF.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                estimateSigmaTFPropertyChange(evt);
+                estimateS2TFPropertyChange(evt);
             }
         });
 
@@ -367,9 +367,9 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
                                 .addGap(18, 18, 18)
                                 .addComponent(imagesPerCycleTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGroup(jPanel2Layout.createSequentialGroup()
-                            .addComponent(estimateSigmaLabel)
+                            .addComponent(estimateS2Label)
                             .addGap(18, 18, 18)
-                            .addComponent(estimateSigmaTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(estimateS2TF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(ExperimentalLabel)
                     .addComponent(CruveFittingLabel))
                 .addContainerGap(47, Short.MAX_VALUE))
@@ -403,8 +403,8 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
                     .addComponent(R2CutOffTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(estimateSigmaLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(estimateSigmaTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(estimateS2Label, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(estimateS2TF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(35, 35, 35))
         );
 
@@ -763,21 +763,21 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
         }
     }//GEN-LAST:event_numRestartsTFPropertyChange
 
-    private void estimateSigmaTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_estimateSigmaTFActionPerformed
+    private void estimateS2TFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_estimateS2TFActionPerformed
         try {
-            estimateSigma = Integer.parseInt(estimateSigmaTF.getText());
+            estimateS2 = Integer.parseInt(estimateS2TF.getText());
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }
-    }//GEN-LAST:event_estimateSigmaTFActionPerformed
+    }//GEN-LAST:event_estimateS2TFActionPerformed
 
-    private void estimateSigmaTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_estimateSigmaTFPropertyChange
+    private void estimateS2TFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_estimateS2TFPropertyChange
         try {
-            estimateSigma = Integer.parseInt(estimateSigmaTF.getText());
+            estimateS2 = Integer.parseInt(estimateS2TF.getText());
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }
-    }//GEN-LAST:event_estimateSigmaTFPropertyChange
+    }//GEN-LAST:event_estimateS2TFPropertyChange
 
     /**
      * @param args the command line arguments
@@ -856,8 +856,8 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     private javax.swing.JButton OpenStack;
     private javax.swing.JFormattedTextField R2CutOffTF;
     private javax.swing.JCheckBox UseLogScale;
-    private javax.swing.JLabel estimateSigmaLabel;
-    private javax.swing.JFormattedTextField estimateSigmaTF;
+    private javax.swing.JLabel estimateS2Label;
+    private javax.swing.JFormattedTextField estimateS2TF;
     private javax.swing.JLabel imagesPerCycleLabel;
     private javax.swing.JLabel imagesPerCycleLabel1;
     private javax.swing.JFormattedTextField imagesPerCycleTF;
@@ -1338,10 +1338,10 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
         int dataPoints = 0;
         double[] residualArray2 = multiplyTwoArrays(residualArray, residualArray);
         double sum = 0;
-        for(int s=residualArray2.length-estimateSigma-1;s<residualArray2.length;s++){
+        for(int s=residualArray2.length-estimateS2-1;s<residualArray2.length;s++){
             sum+=residualArray2[s];
         }
-        double s2=sum/(estimateSigma-1);
+        double s2=sum/(estimateS2-1);
         double[] arrayToSum = divideArrayByValue(residualArray2, s2);
         for (int tp = 0; tp < arrayToSum.length; tp++) {
             if (!Double.isInfinite(arrayToSum[tp])) {

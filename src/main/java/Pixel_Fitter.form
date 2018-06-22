@@ -231,9 +231,9 @@
                                   </Group>
                               </Group>
                               <Group type="102" alignment="1" attributes="0">
-                                  <Component id="estimateSigmaLabel" min="-2" max="-2" attributes="0"/>
+                                  <Component id="estimateS2Label" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace type="separate" max="-2" attributes="0"/>
-                                  <Component id="estimateSigmaTF" min="-2" pref="44" max="-2" attributes="0"/>
+                                  <Component id="estimateS2TF" min="-2" pref="44" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                           <Component id="ExperimentalLabel" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -277,8 +277,8 @@
                       </Group>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="estimateSigmaLabel" alignment="3" min="-2" pref="26" max="-2" attributes="0"/>
-                          <Component id="estimateSigmaTF" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="estimateS2Label" alignment="3" min="-2" pref="26" max="-2" attributes="0"/>
+                          <Component id="estimateS2TF" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
                   </Group>
@@ -398,19 +398,19 @@
                 <AuxValue name="JavaCodeGenerator_SerializeTo" type="java.lang.String" value="psFRET_Form_imagesPerCycleTF"/>
               </AuxValues>
             </Component>
-            <Component class="javax.swing.JLabel" name="estimateSigmaLabel">
+            <Component class="javax.swing.JLabel" name="estimateS2Label">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Estimate sigma data points"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JFormattedTextField" name="estimateSigmaTF">
+            <Component class="javax.swing.JFormattedTextField" name="estimateS2TF">
               <Properties>
                 <Property name="horizontalAlignment" type="int" value="4"/>
                 <Property name="text" type="java.lang.String" value="50"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="estimateSigmaTFActionPerformed"/>
-                <EventHandler event="propertyChange" listener="java.beans.PropertyChangeListener" parameters="java.beans.PropertyChangeEvent" handler="estimateSigmaTFPropertyChange"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="estimateS2TFActionPerformed"/>
+                <EventHandler event="propertyChange" listener="java.beans.PropertyChangeListener" parameters="java.beans.PropertyChangeEvent" handler="estimateS2TFPropertyChange"/>
               </Events>
             </Component>
           </SubComponents>
