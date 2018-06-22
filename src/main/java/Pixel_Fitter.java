@@ -21,6 +21,7 @@ or any other characteristic.
  * @author pattersg
  */
 import ij.*;
+import ij.IJ;
 import ij.io.*;
 import ij.gui.*;
 import ij.process.*;
@@ -45,6 +46,7 @@ import loci.formats.services.OMEXMLService;
 
 import ome.units.quantity.Time;
 import ome.units.UNITS;
+
 
 public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, MouseMotionListener, Measurements, KeyListener {
 
@@ -78,20 +80,21 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     ImagePlus rateConstantImage;
     ImagePlus offsetImage;
     ImagePlus aZeroImage;
-    ImagePlus R2Image;
     ImagePlus Chi2Image;
     boolean chWarnOff;
     boolean yLog;
     boolean LogFitTime;
-    double maxiteration;
-    double numRestarts;
-
+    int maxiteration;
+    int numRestarts;
+    int estimateSigma;
+    
     /**
      * Creates new form NewJFrame
      */
     public Pixel_Fitter() {
         initComponents();
         setVisible(true);
+        //new ij.ImageJ();
     }
 
     /**
@@ -125,6 +128,8 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
         maxIterationsTF = new javax.swing.JFormattedTextField();
         numRestartsLabel = new javax.swing.JLabel();
         numRestartsTF = new javax.swing.JFormattedTextField();
+        estimateSigmaLabel = new javax.swing.JLabel();
+        estimateSigmaTF = new javax.swing.JFormattedTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Photoswitching Pixel Fitter");
@@ -316,46 +321,58 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
             }
         });
 
+        estimateSigmaLabel.setText("Estimate sigma data points");
+
+        estimateSigmaTF.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        estimateSigmaTF.setText("50");
+        estimateSigmaTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                estimateSigmaTFActionPerformed(evt);
+            }
+        });
+        estimateSigmaTF.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                estimateSigmaTFPropertyChange(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addGroup(jPanel2Layout.createSequentialGroup()
-                            .addGap(56, 56, 56)
-                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addGroup(jPanel2Layout.createSequentialGroup()
-                                    .addComponent(numRestartsLabel)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(numRestartsTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(jPanel2Layout.createSequentialGroup()
-                                    .addComponent(imagesPerCycleLabel1)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(R2CutOffTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(jPanel2Layout.createSequentialGroup()
-                                    .addComponent(maxIterationsLabel)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(maxIterationsTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                            .addGap(53, 53, 53)
-                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(jPanel2Layout.createSequentialGroup()
-                                    .addGap(1, 1, 1)
-                                    .addComponent(numCyclesLabel)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(numCyclesTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(jPanel2Layout.createSequentialGroup()
-                                    .addComponent(imagesPerCycleLabel)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(imagesPerCycleTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap()
+                            .addComponent(numRestartsLabel)
+                            .addGap(18, 18, 18)
+                            .addComponent(numRestartsTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                            .addComponent(maxIterationsLabel)
+                            .addGap(18, 18, 18)
+                            .addComponent(maxIterationsTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                            .addComponent(imagesPerCycleLabel1)
+                            .addGap(37, 37, 37)
+                            .addComponent(R2CutOffTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(ExperimentalLabel)
-                            .addComponent(CruveFittingLabel))))
-                .addContainerGap(42, Short.MAX_VALUE))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(1, 1, 1)
+                                .addComponent(numCyclesLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(numCyclesTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(imagesPerCycleLabel)
+                                .addGap(18, 18, 18)
+                                .addComponent(imagesPerCycleTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(jPanel2Layout.createSequentialGroup()
+                            .addComponent(estimateSigmaLabel)
+                            .addGap(18, 18, 18)
+                            .addComponent(estimateSigmaTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(ExperimentalLabel)
+                    .addComponent(CruveFittingLabel))
+                .addContainerGap(47, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -384,7 +401,11 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(imagesPerCycleLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(R2CutOffTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(73, 73, 73))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(estimateSigmaLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(estimateSigmaTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(35, 35, 35))
         );
 
         jTabbedPane2.addTab("Parameters", jPanel2);
@@ -457,9 +478,9 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     }//GEN-LAST:event_OpenStackActionPerformed
 
     private void ExaminePixelsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExaminePixelsActionPerformed
-        if (aZeroDataG == null || rateDataG == null || offsetDataG == null || R2G == null || Chi2G == null) {
+        if (aZeroDataG == null || rateDataG == null || offsetDataG == null || Chi2G == null) {
             img = IJ.getImage();
-            if (img.getTitle().contains("RateConstantsImage") || img.getTitle().contains("AZeroImage") || img.getTitle().contains("OffsetImage") || img.getTitle().contains("R2Image") || img.getTitle().contains("Chi2Image")) {
+            if (img.getTitle().contains("RateConstantsImage") || img.getTitle().contains("AZeroImage") || img.getTitle().contains("OffsetImage") || img.getTitle().contains("Chi2Image")) {
                 IJ.showMessage("Pixel Fitter", "Data image selected\nPlease select the raw image data set");
                 return;
             }
@@ -500,9 +521,8 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
             File f1 = new File(id3 + "_RateConstantsImage.tif");
             File f2 = new File(id3 + "_AZeroImage.tif");
             File f3 = new File(id3 + "_OffsetImage.tif");
-            File f4 = new File(id3 + "_R2Image.tif");
-            File f5 = new File(id3 + "_Chi2Image.tif");
-            if (!f1.exists() || !f2.exists() || !f3.exists() || !f4.exists() || !f5.exists()) {
+            File f4 = new File(id3 + "_Chi2Image.tif");
+            if (!f1.exists() || !f2.exists() || !f3.exists() || !f4.exists()) {
                 IJ.showMessage("Pixel Fitter", "The analyzed data sets were not found in the directory with your image\n" + dir0 + "\nHave you fit this dataset already?");
                 return;
             }
@@ -534,22 +554,6 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
                 for (int x = 0; x < imageW; x++) {
                     for (int y = 0; y < imageH; y++) {
                         aZeroDataG[x][y][cyc] = ip.getPixelValue(x, y);
-                    }
-                }
-            }
-
-            R2Image = new Opener().openImage(id3 + "_R2Image.tif");
-            R2G = new double[imageW][imageH][numCycles];
-            stack = R2Image.getStack();
-            if (stack.getSize() != numCycles) {
-                IJ.showMessage("Pixel Fitter", "The size of R2Image dataset does not match the number of cycles");
-                return;
-            }
-            for (int cyc = 0; cyc < numCycles; cyc++) {
-                ImageProcessor ip = stack.getProcessor(cyc + 1);
-                for (int x = 0; x < imageW; x++) {
-                    for (int y = 0; y < imageH; y++) {
-                        R2G[x][y][cyc] = ip.getPixelValue(x, y);
                     }
                 }
             }
@@ -596,16 +600,15 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
 
 
     private void MakeSaveFitParameterImageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MakeSaveFitParameterImageActionPerformed
-        if (aZeroDataG == null || rateDataG == null || offsetDataG == null || R2G == null || Chi2G == null) {
+        if (aZeroDataG == null || rateDataG == null || offsetDataG == null || Chi2G == null) {
             IJ.showMessage("Pixel Fitter", "Fit parameter data unavailable");
         } else {
             String id2 = id.substring(0, id.indexOf("."));
             File f1 = new File(id2 + "_RateConstantsImage.tif");
             File f2 = new File(id2 + "_AZeroImage.tif");
             File f3 = new File(id2 + "_OffsetImage.tif");
-            File f4 = new File(id2 + "_R2Image.tif.tif");
-            File f5 = new File(id2 + "_Chi2Image.tif.tif");
-            if (f1.exists() || f2.exists() || f3.exists() || f4.exists() || f5.exists()) {
+            File f4 = new File(id2 + "_Chi2Image.tif.tif");
+            if (f1.exists() || f2.exists() || f3.exists() || f4.exists()) {
                 GenericDialog gdEx = new GenericDialog("Pixel Fitter");
                 gdEx.addMessage("Analyzed results files present for this image\n " + id2);
                 gdEx.addCheckbox("Overwrite?", false);
@@ -624,9 +627,6 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
                     imp = createOffsetImage();
                     IJ.saveAs(imp, "Tiff", id2 + "_OffsetImage.tif");
                     imp.close();
-                    imp = createR2Image();
-                    IJ.saveAs(imp, "Tiff", id2 + "_R2Image.tif");
-                    imp.close();
                     imp = createChi2Image();
                     IJ.saveAs(imp, "Tiff", id2 + "_Chi2Image.tif");
                     imp.close();
@@ -640,9 +640,6 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
                 imp.close();
                 imp = createOffsetImage();
                 IJ.saveAs(imp, "Tiff", id2 + "_OffsetImage.tif");
-                imp.close();
-                imp = createR2Image();
-                IJ.saveAs(imp, "Tiff", id2 + "_R2Image.tif");
                 imp.close();
                 imp = createChi2Image();
                 IJ.saveAs(imp, "Tiff", id2 + "_Chi2Image.tif");
@@ -736,7 +733,7 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
 
     private void maxIterationsTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_maxIterationsTFActionPerformed
         try {
-            maxiteration = Double.parseDouble(maxIterationsTF.getText());
+            maxiteration = Integer.parseInt(maxIterationsTF.getText());
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }
@@ -744,7 +741,7 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
 
     private void maxIterationsTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_maxIterationsTFPropertyChange
         try {
-            maxiteration = Double.parseDouble(maxIterationsTF.getText());
+            maxiteration = Integer.parseInt(maxIterationsTF.getText());
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }
@@ -752,7 +749,7 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
 
     private void numRestartsTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_numRestartsTFActionPerformed
         try {
-            numRestarts = Double.parseDouble(numRestartsTF.getText());
+            numRestarts = Integer.parseInt(numRestartsTF.getText());
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }
@@ -760,11 +757,27 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
 
     private void numRestartsTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_numRestartsTFPropertyChange
         try {
-            numRestarts = Double.parseDouble(numRestartsTF.getText());
+            numRestarts = Integer.parseInt(numRestartsTF.getText());
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }
     }//GEN-LAST:event_numRestartsTFPropertyChange
+
+    private void estimateSigmaTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_estimateSigmaTFActionPerformed
+        try {
+            estimateSigma = Integer.parseInt(estimateSigmaTF.getText());
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_estimateSigmaTFActionPerformed
+
+    private void estimateSigmaTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_estimateSigmaTFPropertyChange
+        try {
+            estimateSigma = Integer.parseInt(estimateSigmaTF.getText());
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_estimateSigmaTFPropertyChange
 
     /**
      * @param args the command line arguments
@@ -843,6 +856,8 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
     private javax.swing.JButton OpenStack;
     private javax.swing.JFormattedTextField R2CutOffTF;
     private javax.swing.JCheckBox UseLogScale;
+    private javax.swing.JLabel estimateSigmaLabel;
+    private javax.swing.JFormattedTextField estimateSigmaTF;
     private javax.swing.JLabel imagesPerCycleLabel;
     private javax.swing.JLabel imagesPerCycleLabel1;
     private javax.swing.JFormattedTextField imagesPerCycleTF;
@@ -968,16 +983,14 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
                                     };
 
                                     cf.setInitialParameters(fitparam);
-                                    //cf.getMinimizer().setMaximumThreads(0);
-                                    //cf.getMinimizer().setMaxIterations(20);				
-                                    //cf.getMinimizer().setMaxRestarts(0);
                                     cf.doFit(11); //exponential decay with offset 
                                     double[] fittedParam = cf.getParams();
-                                    double R2 = cf.getRSquared();
+                                    double R2 = cf.getFitGoodness();
                                     double[] residuals = cf.getResiduals();
                                     //double[] fittedCurve = getTheFit(fittedParam, timeDataArrayOfArrays[threadIndex]);
                                     //double Chi2 = calculateReducedChi2(residuals, fittedCurve);
-                                    double Chi2 = calculateReducedChi2(residuals, pixelsArrayOfArrays[threadIndex]);
+                                    //double Chi2 = calculateReducedChi2(timeDataArrayOfArrays[threadIndex], fittedCurve);
+                                    double Chi2 = calculateReducedChi2(residuals);
                                     if (R2 >= R2CutOff) {
                                         aZeroDataG[x][y][cycleNum] = (float) fittedParam[0];
                                         rateDataG[x][y][cycleNum] = (float) fittedParam[1];
@@ -1063,28 +1076,6 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
                         fip.setf(x, y, Float.NaN);
                     } else {
                         fip.setf(x, y, (float) aZeroDataG[x][y][cyc]);
-                    }
-                }
-            }
-            IJ.resetMinAndMax(imp);
-        }
-        imp.show();
-        return imp;
-    }
-
-    public ImagePlus createR2Image() {
-        ImagePlus imp = IJ.createImage("R2Image", "32-bit", imageW, imageH, numCycles);
-
-        for (int cyc = 0; cyc < numCycles; cyc++) {
-            imp.setSlice(cyc + 1);
-            ImageProcessor ip = imp.getProcessor();
-            FloatProcessor fip = (FloatProcessor) ip.convertToFloat();
-            for (int y = 0; y < imageH; y++) {
-                for (int x = 0; x < imageW; x++) {
-                    if (R2G[x][y][cyc] == 0) {
-                        fip.setf(x, y, Float.NaN);
-                    } else {
-                        fip.setf(x, y, (float) R2G[x][y][cyc]);
                     }
                 }
             }
@@ -1225,26 +1216,26 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
                 fitValues[1] = rateDataG[xpoint][ypoint][c];
                 fitValues[2] = offsetDataG[xpoint][ypoint][c];
                 double[] x2 = new double[imagesPerCycle];
+                double[] x4Plot = new double[imagesPerCycle];
                 for (int i = 0; i < x2.length; i++) {
                     x2[i] = x[(c * imagesPerCycle) + i] - x[c * imagesPerCycle];
+                    x4Plot[i] = x[(c * imagesPerCycle) + i];
                 }
                 double[] fitPerCycle = getTheFit(fitValues, x2);
                 for (int i = 0; i < fitPerCycle.length; i++) {
                     fitToAdd[(c * imagesPerCycle) + i] = fitPerCycle[i];
                     yForResiduals[(c * imagesPerCycle) + i] = y[(c * imagesPerCycle) + i];
                 }
+                plot.add("line", x4Plot, fitPerCycle);
                 String labelToAddA = "A=" + String.valueOf((double) Math.round(fitValues[0] * 1000) / 1000);
                 String labelToAddK = "k=" + String.valueOf((double) Math.round(fitValues[1] * 1000) / 1000);
                 String labelToAddC = "offset=" + String.valueOf((double) Math.round(fitValues[2] * 1000) / 1000);
-                String labelToAddR2 = "R2=" + String.valueOf((double) Math.round(R2G[xpoint][ypoint][c] * 1000) / 1000);
-                String labelToAddChi2 = "Chi2=" + String.valueOf((double) Math.round(Chi2G[xpoint][ypoint][c] * 1000) / 1000);
+                 String labelToAddChi2 = "Chi2=" + String.valueOf((double) Math.round(Chi2G[xpoint][ypoint][c] * 1000) / 1000);
                 plot.addLabel(c * 0.35 + 0.05, 0.1, labelToAddA);
                 plot.addLabel(c * 0.35 + 0.05, 0.15, labelToAddK);
                 plot.addLabel(c * 0.35 + 0.05, 0.2, labelToAddC);
-                plot.addLabel(c * 0.35 + 0.05, 0.25, labelToAddR2);
-                plot.addLabel(c * 0.35 + 0.05, 0.3, labelToAddChi2);
+                plot.addLabel(c * 0.35 + 0.05, 0.25, labelToAddChi2);
             }
-            plot.add("line", x, fitToAdd);
         }
 
         double ymin = ProfilePlot.getFixedMin();
@@ -1342,16 +1333,19 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
         return theFit;
     }
 
-    public double calculateReducedChi2(double[] residualArray, double[] theOtherArray) {
-        double offsetToSubtract = 0;
+    public double calculateReducedChi2(double[] residualArray) {
         double chi2ToReturn = 0;
         int dataPoints = 0;
         double[] residualArray2 = multiplyTwoArrays(residualArray, residualArray);
-        double[] offsetSubtractedArray = subtractValueFromArray(theOtherArray, offsetToSubtract);
-        double[] arrayToSum = divideTwoArrays(residualArray2, offsetSubtractedArray);
+        double sum = 0;
+        for(int s=residualArray2.length-estimateSigma-1;s<residualArray2.length;s++){
+            sum+=residualArray2[s];
+        }
+        double s2=sum/(estimateSigma-1);
+        double[] arrayToSum = divideArrayByValue(residualArray2, s2);
         for (int tp = 0; tp < arrayToSum.length; tp++) {
             if (!Double.isInfinite(arrayToSum[tp])) {
-                chi2ToReturn = chi2ToReturn + arrayToSum[tp];
+                chi2ToReturn+=arrayToSum[tp];
                 dataPoints++;
             }
         }
@@ -1541,5 +1535,14 @@ public class Pixel_Fitter extends javax.swing.JFrame implements MouseListener, M
         }
         return arrayToReturn;
     }
+    
+        private static double[] divideArrayByValue(double[] array1, double theValue) {
+        double[] arrayToReturn = new double[array1.length];
+        for (int i = 0; i < array1.length; i++) {
+            arrayToReturn[i] = array1[i]/theValue;
+        }
+        return arrayToReturn;
+    }
+
 
 }
