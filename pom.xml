@@ -13,7 +13,7 @@
 	</parent>
 
 	<groupId>pixel-fitter-analysis</groupId>
-	<artifactId>Pixel_Fitter</artifactId>
+	<artifactId>Photoswitching_Pixel_Fitter</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 
 	<name>Photoswitching_Pixel_Fitter</name>
@@ -85,7 +85,7 @@
                 <license.licenseName>N/A</license.licenseName>
 		<license.copyrightOwners>N/A</license.copyrightOwners>
                 
-		<main-class>Pixel_Fitter</main-class>
+		<main-class>Photoswitching_Pixel_Fitter</main-class>
 	</properties>
 
 	<dependencies>
