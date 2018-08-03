@@ -323,6 +323,7 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
             }
         });
 
+        checkFitSingle.setSelected(true);
         checkFitSingle.setText("Fit Single Exponential with Offset");
         checkFitSingle.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -447,6 +448,18 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
             return;
         }
         img = IJ.getImage();
+        ImageWindow iwin = img.getWindow();
+        iwin.addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosed(WindowEvent e)
+            {
+                aZeroDataG = null;
+                rateDataG = null;
+                offsetDataG = null; 
+                Chi2G = null;
+            }
+        });
         if (img.isHyperStack() && chWarnOff == false) {
             GenericDialog wfc = new GenericDialog("Channel confirmations");
             wfc.addMessage("Have you selected the channel\nyou wish to fit?");
@@ -475,6 +488,18 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
             ImagePlus[] imp = BF.openImagePlus(id);
             imp[0].show();
             img = IJ.getImage();
+            ImageWindow iwin = img.getWindow();
+            iwin.addWindowListener(new WindowAdapter()
+            {
+                @Override
+                public void windowClosed(WindowEvent e)
+                {
+                    aZeroDataG = null;
+                    rateDataG = null;
+                    offsetDataG = null; 
+                    Chi2G = null;
+                }
+            });        
         } catch (FormatException exc) {
             IJ.error("Sorry, an error occurred: " + exc.getMessage());
         } catch (IOException ex) {
@@ -488,6 +513,16 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
             if (img.getTitle().contains("RateConstantsImage") || img.getTitle().contains("AZeroImage") || img.getTitle().contains("OffsetImage") || img.getTitle().contains("Chi2Image")) {
                 IJ.showMessage("Pixel Fitter", "Data image selected\nPlease select the raw image data set");
                 return;
+            }
+            boolean imageOpenAlready = false;
+            String[] imageTitles = WindowManager.getImageTitles();
+            for (String imageTitle : imageTitles) {
+                if (imageTitle.contains("RateConstantsImage")) {
+                    imageOpenAlready = true;
+                }
+            }
+            if (!imageOpenAlready && rateDataG != null) {
+                rateConstantImage = createRateConstantImage();
             }
             //in case the image is opened without using the plugin BioFormats button
             String dir0 = IJ.getDirectory("image");
@@ -516,12 +551,6 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
                 IJ.showMessage("Pixel Fitter", "The number of cycles multiplied by the number images per cycle is larger than the stack");
                 return;
             }
-            try {
-                timeData3 = getTimingPerPlane(id, size, currentZ, currentchannel);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
             String id3 = id.substring(0, id.indexOf("."));
             File f1 = new File(id3 + "_RateConstantsImage.tif");
             File f2 = new File(id3 + "_AZeroImage.tif");
@@ -530,6 +559,11 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
             if (!f1.exists() || !f2.exists() || !f3.exists() || !f4.exists()) {
                 IJ.showMessage("Pixel Fitter", "The analyzed data sets were not found in the directory with your image\n" + dir0 + "\nHave you fit this dataset already?");
                 return;
+            }
+            try {
+                timeData3 = getTimingPerPlane(id, size, currentZ, currentchannel);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             offsetImage = new Opener().openImage(id3 + "_OffsetImage.tif");
             offsetDataG = new double[imageW][imageH][numCycles];
@@ -598,6 +632,16 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
 
             setUpListeners();
         } else {
+            boolean imageOpenAlready = false;
+            String[] imageTitles = WindowManager.getImageTitles();
+            for (String imageTitle : imageTitles) {
+                if (imageTitle.contains("RateConstantsImage")) {
+                    imageOpenAlready = true;
+                }
+            }
+            if (!imageOpenAlready && rateDataG != null) {
+                rateConstantImage = createRateConstantImage();
+            }
             setUpListeners();
         }
 
@@ -914,8 +958,6 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
     // End of variables declaration//GEN-END:variables
 
     public void psFRET_Fit_exponential() throws Exception {
-
-        img = IJ.getImage();
         IJ.resetMinAndMax(img);
         //in case the image is opened without using the plugin BioFormats button
         String dir0 = IJ.getDirectory("image");
@@ -1243,7 +1285,7 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
 
     @Override
     public void mousePressed(MouseEvent e) {
-//Gets the Z values through a single point at (x,y). 
+//Gets the pixel values through a single point at (x,y). 
 
         ImageStack stack = img.getStack();
         int size = stack.getSize();
@@ -1378,6 +1420,9 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
         canvas = iwin.getCanvas();
         canvas.removeMouseListener(this);
         ImageWindow iwin2 = rateConstantImage.getWindow();
+        if (iwin2 == null) {
+            return;
+        }
         canvas2 = iwin2.getCanvas();
         canvas2.removeMouseListener(this);
         pwin = null;
@@ -1654,6 +1699,6 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
         }
         return sum;
     }
-
-
+    
+    
 }

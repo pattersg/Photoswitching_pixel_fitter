@@ -405,6 +405,7 @@
             </Component>
             <Component class="javax.swing.JCheckBox" name="checkFitSingle">
               <Properties>
+                <Property name="selected" type="boolean" value="true"/>
                 <Property name="text" type="java.lang.String" value="Fit Single Exponential with Offset"/>
               </Properties>
               <Events>
