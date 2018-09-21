@@ -90,6 +90,7 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
     int numRestarts;
     boolean fitSingle;
     boolean fitDouble;
+    int cameraOffset;
     /**
      * Creates new form NewJFrame
      */
@@ -125,13 +126,15 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
         imagesPerCycleLabel1 = new javax.swing.JLabel();
         R2CutOffTF = new javax.swing.JFormattedTextField();
         ExperimentalLabel = new javax.swing.JLabel();
-        CruveFittingLabel = new javax.swing.JLabel();
+        CurveFittingLabel = new javax.swing.JLabel();
         maxIterationsLabel = new javax.swing.JLabel();
         maxIterationsTF = new javax.swing.JFormattedTextField();
         numRestartsLabel = new javax.swing.JLabel();
         numRestartsTF = new javax.swing.JFormattedTextField();
         checkFitSingle = new javax.swing.JCheckBox();
         checkFitDouble = new javax.swing.JCheckBox();
+        cameraOffsetTF = new javax.swing.JFormattedTextField();
+        cameraOffsetLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Photoswitching Pixel Fitter");
@@ -288,8 +291,8 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
         ExperimentalLabel.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
         ExperimentalLabel.setText("Experimental");
 
-        CruveFittingLabel.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
-        CruveFittingLabel.setText("Curve Fitting");
+        CurveFittingLabel.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
+        CurveFittingLabel.setText("Curve Fitting");
 
         maxIterationsLabel.setText("Max iterations");
 
@@ -338,24 +341,38 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
             }
         });
 
+        cameraOffsetTF.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        cameraOffsetTF.setText("1600");
+        cameraOffsetTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cameraOffsetTFActionPerformed(evt);
+            }
+        });
+        cameraOffsetTF.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                cameraOffsetTFPropertyChange(evt);
+            }
+        });
+
+        cameraOffsetLabel.setText("Camera Offset");
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(checkFitSingle)
+                    .addComponent(checkFitDouble))
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(ExperimentalLabel)
+                    .addComponent(CurveFittingLabel)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(6, 6, 6)
+                        .addGap(81, 81, 81)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(numRestartsLabel)
-                                .addGap(18, 18, 18)
-                                .addComponent(numRestartsTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(maxIterationsLabel)
-                                .addGap(18, 18, 18)
-                                .addComponent(maxIterationsTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addGroup(jPanel2Layout.createSequentialGroup()
                                     .addGap(1, 1, 1)
@@ -367,18 +384,22 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
                                     .addGap(18, 18, 18)
                                     .addComponent(imagesPerCycleTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(numRestartsLabel)
+                                .addGap(18, 18, 18)
+                                .addComponent(numRestartsTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(maxIterationsLabel)
+                                .addGap(18, 18, 18)
+                                .addComponent(maxIterationsTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addComponent(imagesPerCycleLabel1)
-                                .addGap(37, 37, 37)
-                                .addComponent(R2CutOffTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(103, 103, 103))))
-                    .addComponent(ExperimentalLabel)
-                    .addComponent(CruveFittingLabel))
+                                .addGap(18, 18, 18)
+                                .addComponent(R2CutOffTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addComponent(cameraOffsetLabel)
+                        .addGap(18, 18, 18)
+                        .addComponent(cameraOffsetTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(40, Short.MAX_VALUE))
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(checkFitSingle)
-                    .addComponent(checkFitDouble))
-                .addGap(0, 0, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -393,8 +414,8 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(imagesPerCycleLabel)
                     .addComponent(imagesPerCycleTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(38, 38, 38)
-                .addComponent(CruveFittingLabel)
+                .addGap(18, 18, 18)
+                .addComponent(CurveFittingLabel)
                 .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(maxIterationsLabel)
@@ -403,15 +424,19 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(numRestartsLabel)
                     .addComponent(numRestartsTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(imagesPerCycleLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(R2CutOffTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cameraOffsetTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cameraOffsetLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(checkFitSingle)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(checkFitDouble)
-                .addContainerGap(28, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         jTabbedPane2.addTab("Parameters", jPanel2);
@@ -830,6 +855,22 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
         } 
     }//GEN-LAST:event_checkFitDoubleItemStateChanged
 
+    private void cameraOffsetTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cameraOffsetTFActionPerformed
+        try {
+            cameraOffset = Integer.parseInt(cameraOffsetTF.getText());
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_cameraOffsetTFActionPerformed
+
+    private void cameraOffsetTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_cameraOffsetTFPropertyChange
+        try {
+            cameraOffset = Integer.parseInt(cameraOffsetTF.getText());
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_cameraOffsetTFPropertyChange
+
     /**
      * @param args the command line arguments
      */
@@ -931,7 +972,7 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel CruveFittingLabel;
+    private javax.swing.JLabel CurveFittingLabel;
     private javax.swing.JButton ExaminePixels;
     private javax.swing.JLabel ExperimentalLabel;
     private javax.swing.JButton FitStack;
@@ -939,6 +980,8 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
     private javax.swing.JButton OpenStack;
     private javax.swing.JFormattedTextField R2CutOffTF;
     private javax.swing.JCheckBox UseLogScale;
+    private javax.swing.JLabel cameraOffsetLabel;
+    private javax.swing.JFormattedTextField cameraOffsetTF;
     private javax.swing.JCheckBox checkFitDouble;
     private javax.swing.JCheckBox checkFitSingle;
     private javax.swing.JLabel imagesPerCycleLabel;
@@ -1040,6 +1083,7 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
                                         pixelsArrayOfArrays[threadIndex][z] = img2.getVoxel(x, y, (cycleNum * imagesPerCycle) + z);
                                     }
                                 }
+                                pixelsArrayOfArrays[threadIndex]=subtractValueFromArray(pixelsArrayOfArrays[threadIndex], cameraOffset);
                                 CurveFitter cf = new CurveFitter(timeDataArrayOfArrays[threadIndex], pixelsArrayOfArrays[threadIndex]);
                                 double firstframeint = pixelsArrayOfArrays[threadIndex][0];
                                 double lastframeint = pixelsArrayOfArrays[threadIndex][pixelsArrayOfArrays[threadIndex].length - 1];
@@ -1072,7 +1116,7 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
                                     double R2 = cf.getFitGoodness();
                                     double[] residuals = cf.getResiduals();
                                     double[] theFit = getTheFit(fittedParam, cf.getXPoints());
-                                    double Chi2 = calculateChi2(residuals, theFit);
+                                    double Chi2 = calculateReducedChi2(residuals, pixelsArrayOfArrays[threadIndex]);
                                     if (R2 >= R2CutOff) {
                                             aZeroDataG[x][y][cycleNum] = (float) fittedParam[0];
                                             rateDataG[x][y][cycleNum] = (float) fittedParam[1];
@@ -1118,7 +1162,7 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
                                         double R2 = cf.getFitGoodness();
                                         double[] residuals = cf.getResiduals();
                                         double[] theFit = getTheFit(fittedParam, timeDataArrayOfArrays[threadIndex]);
-                                        double Chi2 = calculateChi2(residuals, theFit);
+                                        double Chi2 = calculateReducedChi2(residuals, pixelsArrayOfArrays[threadIndex]);
                                         if (R2 >= R2CutOff) {
                                             aZeroDataG[x][y][cycleNum] = (float) fittedParam[0];
                                             rateDataG[x][y][cycleNum] = (float) fittedParam[1];
@@ -1296,13 +1340,13 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
         if (img.isHyperStack()) {
             for (int p = 1; p <= img.getNFrames(); p++) {
                 int z2 = img.getStackIndex(img.getC(), img.getZ(), p) - 1;
-                values[p - 1] = stack.getVoxel(xpoint, ypoint, z2);
+                values[p - 1] = (stack.getVoxel(xpoint, ypoint, z2)-cameraOffset);
             }
         } else {
             for (int p = 1; p <= size; p++) {
                 ImageProcessor ip = stack.getProcessor(p);
                 ip.setCalibrationTable(cTable);
-                values[p - 1] = ip.getPixelValue(xpoint, ypoint);
+                values[p - 1] = (ip.getPixelValue(xpoint, ypoint)-cameraOffset);
             }
         }
 
@@ -1485,20 +1529,6 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
         return theFit;
     }
 
-    public double[] calculateRunningAverageInArray(double[] theArray, int indicesToAverage) {
-        double[] averagedArray = new double[theArray.length];
-        for (int i = 0; i < theArray.length-1; i++) {
-            double theSum = 0;
-            for(int ii=0;ii<=indicesToAverage;ii++){
-                theSum = theSum + theArray[i+ii];
-            }
-            averagedArray[i] = theSum/(indicesToAverage+1);
-        }
-        averagedArray[theArray.length-1] = theArray[theArray.length-1];
-        return averagedArray;
-    }
-
-
     public double calculateChi2(double[] residualArray, double[] theFitArray) {
         double chi2ToReturn = 0;
         double[] residualArray2 = multiplyTwoArrays(residualArray, residualArray);
@@ -1509,6 +1539,22 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
             }
         }
         return chi2ToReturn;
+    }
+    
+    public double calculateReducedChi2(double[] residualArray, double[] theDataArray) {
+        double chi2ToReturn = 0;
+        double[] residualArray2 = multiplyTwoArrays(residualArray, residualArray);
+        for (int tp = 0; tp < residualArray2.length; tp++) {
+            if (!Double.isInfinite(residualArray2[tp])) {
+                chi2ToReturn += (residualArray2[tp]/theDataArray[tp]);
+            }
+        }
+        int df;
+        if(fitDouble)
+            df = 6;
+        else
+            df = 4;
+        return chi2ToReturn/(residualArray.length-df);
     }
 
     /**
