@@ -58,6 +58,7 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
     int numCycles;
     int imagesPerCycle;
     double R2CutOff;
+    double Chi2CutOff;
     double[] timeData;
     double[] timeData3;
     double[][][] rateDataG;
@@ -91,6 +92,12 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
     boolean fitSingle;
     boolean fitDouble;
     int cameraOffset;
+    int binFactor;
+    double cameraGain;
+    private static double lambda;
+    private static double NA;
+    private static double pixSize;
+    private static int binFactorImage;
     /**
      * Creates new form NewJFrame
      */
@@ -98,6 +105,7 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
         initComponents();
         setVisible(true);
         //new ij.ImageJ();
+        checkFitDouble.setVisible(false);
     }
 
     /**
@@ -110,7 +118,7 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
     private void initComponents() {
 
         jTabbedPane2 = new javax.swing.JTabbedPane();
-        jPanel1 = new javax.swing.JPanel();
+        Control = new javax.swing.JPanel();
         OpenStack = new javax.swing.JButton();
         makeRateConstantImage = new javax.swing.JButton();
         FitStack = new javax.swing.JButton();
@@ -118,7 +126,7 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
         MakeSaveFitParameterImage = new javax.swing.JButton();
         UseLogScale = new javax.swing.JCheckBox();
         logFitTimes = new javax.swing.JCheckBox();
-        jPanel2 = new javax.swing.JPanel();
+        Fitting = new javax.swing.JPanel();
         numCyclesLabel = new javax.swing.JLabel();
         numCyclesTF = new javax.swing.JFormattedTextField();
         imagesPerCycleLabel = new javax.swing.JLabel();
@@ -133,8 +141,26 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
         numRestartsTF = new javax.swing.JFormattedTextField();
         checkFitSingle = new javax.swing.JCheckBox();
         checkFitDouble = new javax.swing.JCheckBox();
+        Chi2CutoffLabel = new javax.swing.JLabel();
+        Chi2CutOffTF = new javax.swing.JFormattedTextField();
+        Instrument = new javax.swing.JPanel();
         cameraOffsetTF = new javax.swing.JFormattedTextField();
         cameraOffsetLabel = new javax.swing.JLabel();
+        binFactorLabel = new javax.swing.JLabel();
+        binFactorTF = new javax.swing.JFormattedTextField();
+        cameraGainLabel = new javax.swing.JLabel();
+        cameraGainTF = new javax.swing.JFormattedTextField();
+        ObjectiveNAText = new javax.swing.JLabel();
+        ObjectiveNATF = new javax.swing.JTextField();
+        emissionLambdaTF = new javax.swing.JTextField();
+        emissionLambdaText = new javax.swing.JLabel();
+        emissionLambdaText1 = new javax.swing.JLabel();
+        pixelSizeTF = new javax.swing.JTextField();
+        binFactorImageTF = new javax.swing.JTextField();
+        binFactorImageText = new javax.swing.JLabel();
+        ImagePixelSizeText = new javax.swing.JLabel();
+        imagePixelSizeTF = new javax.swing.JTextField();
+        ImagePixelSizeText1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Photoswitching Pixel Fitter");
@@ -197,38 +223,38 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
             }
         });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout ControlLayout = new javax.swing.GroupLayout(Control);
+        Control.setLayout(ControlLayout);
+        ControlLayout.setHorizontalGroup(
+            ControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(ControlLayout.createSequentialGroup()
+                .addGroup(ControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(ControlLayout.createSequentialGroup()
                         .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(ControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(FitStack, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(OpenStack, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(logFitTimes)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGroup(ControlLayout.createSequentialGroup()
                         .addGap(15, 15, 15)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(ControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(MakeSaveFitParameterImage, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(ControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                 .addComponent(makeRateConstantImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(ExaminePixels, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE))
                             .addComponent(UseLogScale))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        ControlLayout.setVerticalGroup(
+            ControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(ControlLayout.createSequentialGroup()
                 .addGap(14, 14, 14)
                 .addComponent(OpenStack, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(30, 30, 30)
                 .addComponent(FitStack, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(logFitTimes)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 69, Short.MAX_VALUE)
                 .addComponent(makeRateConstantImage)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ExaminePixels, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -239,7 +265,7 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
                 .addGap(25, 25, 25))
         );
 
-        jTabbedPane2.addTab("Control", jPanel1);
+        jTabbedPane2.addTab("Control", Control);
 
         numCyclesLabel.setText("Number of cycles");
 
@@ -273,6 +299,7 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
             }
         });
 
+        imagesPerCycleLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         imagesPerCycleLabel1.setText("R2 cutoff");
 
         R2CutOffTF.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
@@ -341,8 +368,114 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
             }
         });
 
+        Chi2CutoffLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        Chi2CutoffLabel.setText("Chi2 cutoff");
+
+        Chi2CutOffTF.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        Chi2CutOffTF.setText("10.0");
+        Chi2CutOffTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Chi2CutOffTFActionPerformed(evt);
+            }
+        });
+        Chi2CutOffTF.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                Chi2CutOffTFPropertyChange(evt);
+            }
+        });
+
+        javax.swing.GroupLayout FittingLayout = new javax.swing.GroupLayout(Fitting);
+        Fitting.setLayout(FittingLayout);
+        FittingLayout.setHorizontalGroup(
+            FittingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(FittingLayout.createSequentialGroup()
+                .addGroup(FittingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(checkFitSingle)
+                    .addComponent(checkFitDouble))
+                .addGap(0, 19, Short.MAX_VALUE))
+            .addGroup(FittingLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(FittingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(FittingLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(Chi2CutoffLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(Chi2CutOffTF, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18))
+                    .addGroup(FittingLayout.createSequentialGroup()
+                        .addGroup(FittingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(FittingLayout.createSequentialGroup()
+                                .addGap(54, 54, 54)
+                                .addComponent(imagesPerCycleLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(R2CutOffTF))
+                            .addComponent(ExperimentalLabel)
+                            .addComponent(CurveFittingLabel)
+                            .addGroup(FittingLayout.createSequentialGroup()
+                                .addGap(79, 79, 79)
+                                .addGroup(FittingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(FittingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(FittingLayout.createSequentialGroup()
+                                            .addGap(1, 1, 1)
+                                            .addComponent(numCyclesLabel)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                            .addComponent(numCyclesTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(FittingLayout.createSequentialGroup()
+                                            .addComponent(imagesPerCycleLabel)
+                                            .addGap(18, 18, 18)
+                                            .addComponent(imagesPerCycleTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGroup(FittingLayout.createSequentialGroup()
+                                        .addGroup(FittingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                            .addComponent(maxIterationsLabel)
+                                            .addComponent(numRestartsLabel))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addGroup(FittingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(maxIterationsTF, javax.swing.GroupLayout.DEFAULT_SIZE, 50, Short.MAX_VALUE)
+                                            .addComponent(numRestartsTF))))))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+        );
+        FittingLayout.setVerticalGroup(
+            FittingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(FittingLayout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addComponent(ExperimentalLabel)
+                .addGap(18, 18, 18)
+                .addGroup(FittingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(numCyclesLabel)
+                    .addComponent(numCyclesTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(FittingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(imagesPerCycleLabel)
+                    .addComponent(imagesPerCycleTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(CurveFittingLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(FittingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(maxIterationsLabel)
+                    .addComponent(maxIterationsTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(FittingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(numRestartsLabel)
+                    .addComponent(numRestartsTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(24, 24, 24)
+                .addGroup(FittingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(imagesPerCycleLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(R2CutOffTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(FittingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(Chi2CutoffLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(Chi2CutOffTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 73, Short.MAX_VALUE)
+                .addComponent(checkFitSingle)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(checkFitDouble)
+                .addContainerGap())
+        );
+
+        jTabbedPane2.addTab("Fitting", Fitting);
+
         cameraOffsetTF.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
-        cameraOffsetTF.setText("1600");
+        cameraOffsetTF.setText("100");
         cameraOffsetTF.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cameraOffsetTFActionPerformed(evt);
@@ -354,106 +487,221 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
             }
         });
 
+        cameraOffsetLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         cameraOffsetLabel.setText("Camera Offset");
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(checkFitSingle)
-                    .addComponent(checkFitDouble))
-                .addGap(0, 0, Short.MAX_VALUE))
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        binFactorLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        binFactorLabel.setText("Camera Bin Factor");
+
+        binFactorTF.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        binFactorTF.setText("4");
+        binFactorTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                binFactorTFActionPerformed(evt);
+            }
+        });
+        binFactorTF.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                binFactorTFPropertyChange(evt);
+            }
+        });
+
+        cameraGainLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        cameraGainLabel.setText("Camera Gain");
+
+        cameraGainTF.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        cameraGainTF.setText("2.17");
+        cameraGainTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cameraGainTFActionPerformed(evt);
+            }
+        });
+        cameraGainTF.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                cameraGainTFPropertyChange(evt);
+            }
+        });
+
+        ObjectiveNAText.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        ObjectiveNAText.setText("Objective NA");
+
+        ObjectiveNATF.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        ObjectiveNATF.setText("1.4");
+        ObjectiveNATF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ObjectiveNATFActionPerformed(evt);
+            }
+        });
+        ObjectiveNATF.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                ObjectiveNATFPropertyChange(evt);
+            }
+        });
+
+        emissionLambdaTF.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        emissionLambdaTF.setText("500");
+        emissionLambdaTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                emissionLambdaTFActionPerformed(evt);
+            }
+        });
+        emissionLambdaTF.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                emissionLambdaTFPropertyChange(evt);
+            }
+        });
+
+        emissionLambdaText.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        emissionLambdaText.setText("Emission wavelength (nm)");
+
+        emissionLambdaText1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        emissionLambdaText1.setText("Unbinned pixel size (nm)");
+
+        pixelSizeTF.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        pixelSizeTF.setText("39");
+        pixelSizeTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pixelSizeTFActionPerformed(evt);
+            }
+        });
+        pixelSizeTF.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                pixelSizeTFPropertyChange(evt);
+            }
+        });
+
+        binFactorImageTF.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        binFactorImageTF.setText("1");
+        binFactorImageTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                binFactorImageTFActionPerformed(evt);
+            }
+        });
+        binFactorImageTF.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                binFactorImageTFPropertyChange(evt);
+            }
+        });
+
+        binFactorImageText.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        binFactorImageText.setText("Image Bin Factor (Post)");
+
+        ImagePixelSizeText.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        ImagePixelSizeText.setText("Final Image Pixel size =");
+
+        imagePixelSizeTF.setEditable(false);
+        imagePixelSizeTF.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        imagePixelSizeTF.setText("156");
+        imagePixelSizeTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                imagePixelSizeTFActionPerformed(evt);
+            }
+        });
+        imagePixelSizeTF.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                imagePixelSizeTFPropertyChange(evt);
+            }
+        });
+
+        ImagePixelSizeText1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        ImagePixelSizeText1.setText("nm");
+
+        javax.swing.GroupLayout InstrumentLayout = new javax.swing.GroupLayout(Instrument);
+        Instrument.setLayout(InstrumentLayout);
+        InstrumentLayout.setHorizontalGroup(
+            InstrumentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, InstrumentLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(ExperimentalLabel)
-                    .addComponent(CurveFittingLabel)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(81, 81, 81)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(jPanel2Layout.createSequentialGroup()
-                                    .addGap(1, 1, 1)
-                                    .addComponent(numCyclesLabel)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(numCyclesTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(jPanel2Layout.createSequentialGroup()
-                                    .addComponent(imagesPerCycleLabel)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(imagesPerCycleTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(numRestartsLabel)
-                                .addGap(18, 18, 18)
-                                .addComponent(numRestartsTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(maxIterationsLabel)
-                                .addGap(18, 18, 18)
-                                .addComponent(maxIterationsTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(imagesPerCycleLabel1)
-                                .addGap(18, 18, 18)
-                                .addComponent(R2CutOffTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addComponent(cameraOffsetLabel)
-                        .addGap(18, 18, 18)
-                        .addComponent(cameraOffsetTF, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(40, Short.MAX_VALUE))
+                .addGroup(InstrumentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(InstrumentLayout.createSequentialGroup()
+                        .addGroup(InstrumentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(InstrumentLayout.createSequentialGroup()
+                                .addGap(4, 4, 4)
+                                .addGroup(InstrumentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(binFactorImageText, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(binFactorLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(cameraOffsetLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(cameraGainLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(InstrumentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(binFactorImageTF)
+                                    .addComponent(binFactorTF)
+                                    .addComponent(cameraOffsetTF, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(cameraGainTF, javax.swing.GroupLayout.Alignment.TRAILING)))
+                            .addGroup(InstrumentLayout.createSequentialGroup()
+                                .addComponent(ImagePixelSizeText, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(imagePixelSizeTF, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(ImagePixelSizeText1)
+                                .addGap(6, 6, 6)))
+                        .addGap(17, 17, 17))
+                    .addGroup(InstrumentLayout.createSequentialGroup()
+                        .addGroup(InstrumentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(ObjectiveNAText, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(emissionLambdaText, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(emissionLambdaText1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(InstrumentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(ObjectiveNATF, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(emissionLambdaTF, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(pixelSizeTF, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)))))
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addComponent(ExperimentalLabel)
-                .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(numCyclesLabel)
-                    .addComponent(numCyclesTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(imagesPerCycleLabel)
-                    .addComponent(imagesPerCycleTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(CurveFittingLabel)
-                .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(maxIterationsLabel)
-                    .addComponent(maxIterationsTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(numRestartsLabel)
-                    .addComponent(numRestartsTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(imagesPerCycleLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(R2CutOffTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+        InstrumentLayout.setVerticalGroup(
+            InstrumentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(InstrumentLayout.createSequentialGroup()
+                .addGap(51, 51, 51)
+                .addGroup(InstrumentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(ObjectiveNATF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ObjectiveNAText))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(InstrumentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(emissionLambdaTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(emissionLambdaText))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(InstrumentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(pixelSizeTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(emissionLambdaText1))
+                .addGap(30, 30, 30)
+                .addGroup(InstrumentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(binFactorImageTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(binFactorImageText))
+                .addGap(50, 50, 50)
+                .addGroup(InstrumentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(binFactorTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(binFactorLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(5, 5, 5)
+                .addGroup(InstrumentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cameraOffsetTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cameraOffsetLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(checkFitSingle)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(checkFitDouble)
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(InstrumentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cameraGainTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cameraGainLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(47, 47, 47)
+                .addGroup(InstrumentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(ImagePixelSizeText)
+                    .addComponent(imagePixelSizeTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ImagePixelSizeText1))
+                .addGap(27, 27, 27))
         );
 
-        jTabbedPane2.addTab("Parameters", jPanel2);
+        jTabbedPane2.addTab("Instrument", Instrument);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 315, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 443, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jTabbedPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 482, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -857,7 +1105,7 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
 
     private void cameraOffsetTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cameraOffsetTFActionPerformed
         try {
-            cameraOffset = Integer.parseInt(cameraOffsetTF.getText());
+            cameraOffset = Integer.parseInt(cameraOffsetTF.getText()) * (binFactor*binFactor);
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }
@@ -865,11 +1113,95 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
 
     private void cameraOffsetTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_cameraOffsetTFPropertyChange
         try {
-            cameraOffset = Integer.parseInt(cameraOffsetTF.getText());
+            cameraOffset = Integer.parseInt(cameraOffsetTF.getText()) * (binFactor*binFactor);
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }
     }//GEN-LAST:event_cameraOffsetTFPropertyChange
+
+    private void binFactorTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_binFactorTFActionPerformed
+        try {
+            binFactor = Integer.parseInt(binFactorTF.getText());
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_binFactorTFActionPerformed
+
+    private void binFactorTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_binFactorTFPropertyChange
+        try {
+            binFactor = Integer.parseInt(binFactorTF.getText());
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_binFactorTFPropertyChange
+
+    private void cameraGainTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cameraGainTFActionPerformed
+        try {
+            cameraGain = Double.parseDouble(cameraGainTF.getText());
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_cameraGainTFActionPerformed
+
+    private void cameraGainTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_cameraGainTFPropertyChange
+        try {
+            cameraGain = Double.parseDouble(cameraGainTF.getText());
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_cameraGainTFPropertyChange
+
+    private void ObjectiveNATFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ObjectiveNATFActionPerformed
+        NA = Double.parseDouble(ObjectiveNATF.getText());
+    }//GEN-LAST:event_ObjectiveNATFActionPerformed
+
+    private void ObjectiveNATFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_ObjectiveNATFPropertyChange
+        NA = Double.parseDouble(ObjectiveNATF.getText());
+    }//GEN-LAST:event_ObjectiveNATFPropertyChange
+
+    private void emissionLambdaTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emissionLambdaTFActionPerformed
+        lambda = Double.parseDouble(emissionLambdaTF.getText());
+    }//GEN-LAST:event_emissionLambdaTFActionPerformed
+
+    private void emissionLambdaTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_emissionLambdaTFPropertyChange
+        lambda = Double.parseDouble(emissionLambdaTF.getText());
+    }//GEN-LAST:event_emissionLambdaTFPropertyChange
+
+    private void pixelSizeTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pixelSizeTFActionPerformed
+        pixSize = Double.parseDouble(pixelSizeTF.getText());
+        imagePixelSizeTF.setText(String.valueOf((int)pixSize*binFactor*binFactorImage));
+    }//GEN-LAST:event_pixelSizeTFActionPerformed
+
+    private void pixelSizeTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_pixelSizeTFPropertyChange
+        pixSize = Double.parseDouble(pixelSizeTF.getText());
+        imagePixelSizeTF.setText(String.valueOf((int)pixSize*binFactor*binFactorImage));
+    }//GEN-LAST:event_pixelSizeTFPropertyChange
+
+    private void binFactorImageTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_binFactorImageTFActionPerformed
+        binFactorImage = Integer.parseInt(binFactorImageTF.getText());
+        imagePixelSizeTF.setText(String.valueOf((int)pixSize*binFactor*binFactorImage));
+    }//GEN-LAST:event_binFactorImageTFActionPerformed
+
+    private void binFactorImageTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_binFactorImageTFPropertyChange
+        binFactorImage = Integer.parseInt(binFactorImageTF.getText());
+        imagePixelSizeTF.setText(String.valueOf((int)pixSize*binFactor*binFactorImage));
+    }//GEN-LAST:event_binFactorImageTFPropertyChange
+
+    private void Chi2CutOffTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Chi2CutOffTFActionPerformed
+        Chi2CutOff = Double.parseDouble(Chi2CutOffTF.getText());
+    }//GEN-LAST:event_Chi2CutOffTFActionPerformed
+
+    private void Chi2CutOffTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_Chi2CutOffTFPropertyChange
+        Chi2CutOff = Double.parseDouble(Chi2CutOffTF.getText());
+    }//GEN-LAST:event_Chi2CutOffTFPropertyChange
+
+    private void imagePixelSizeTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_imagePixelSizeTFActionPerformed
+        imagePixelSizeTF.setText(String.valueOf((int)pixSize*binFactor*binFactorImage));
+    }//GEN-LAST:event_imagePixelSizeTFActionPerformed
+
+    private void imagePixelSizeTFPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_imagePixelSizeTFPropertyChange
+        imagePixelSizeTF.setText(String.valueOf((int)pixSize*binFactor*binFactorImage));
+    }//GEN-LAST:event_imagePixelSizeTFPropertyChange
 
     /**
      * @param args the command line arguments
@@ -972,23 +1304,40 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JFormattedTextField Chi2CutOffTF;
+    private javax.swing.JLabel Chi2CutoffLabel;
+    private javax.swing.JPanel Control;
     private javax.swing.JLabel CurveFittingLabel;
     private javax.swing.JButton ExaminePixels;
     private javax.swing.JLabel ExperimentalLabel;
     private javax.swing.JButton FitStack;
+    private javax.swing.JPanel Fitting;
+    private javax.swing.JLabel ImagePixelSizeText;
+    private javax.swing.JLabel ImagePixelSizeText1;
+    private javax.swing.JPanel Instrument;
     private javax.swing.JButton MakeSaveFitParameterImage;
+    private javax.swing.JTextField ObjectiveNATF;
+    private javax.swing.JLabel ObjectiveNAText;
     private javax.swing.JButton OpenStack;
     private javax.swing.JFormattedTextField R2CutOffTF;
     private javax.swing.JCheckBox UseLogScale;
+    private javax.swing.JTextField binFactorImageTF;
+    private javax.swing.JLabel binFactorImageText;
+    private javax.swing.JLabel binFactorLabel;
+    private javax.swing.JFormattedTextField binFactorTF;
+    private javax.swing.JLabel cameraGainLabel;
+    private javax.swing.JFormattedTextField cameraGainTF;
     private javax.swing.JLabel cameraOffsetLabel;
     private javax.swing.JFormattedTextField cameraOffsetTF;
     private javax.swing.JCheckBox checkFitDouble;
     private javax.swing.JCheckBox checkFitSingle;
+    private javax.swing.JTextField emissionLambdaTF;
+    private javax.swing.JLabel emissionLambdaText;
+    private javax.swing.JLabel emissionLambdaText1;
+    private javax.swing.JTextField imagePixelSizeTF;
     private javax.swing.JLabel imagesPerCycleLabel;
     private javax.swing.JLabel imagesPerCycleLabel1;
     private javax.swing.JFormattedTextField imagesPerCycleTF;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JCheckBox logFitTimes;
     private javax.swing.JButton makeRateConstantImage;
@@ -998,6 +1347,7 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
     private javax.swing.JFormattedTextField numCyclesTF;
     private javax.swing.JLabel numRestartsLabel;
     private javax.swing.JFormattedTextField numRestartsTF;
+    private javax.swing.JTextField pixelSizeTF;
     // End of variables declaration//GEN-END:variables
 
     public void psFRET_Fit_exponential() throws Exception {
@@ -1117,7 +1467,7 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
                                     double[] residuals = cf.getResiduals();
                                     double[] theFit = getTheFit(fittedParam, cf.getXPoints());
                                     double Chi2 = calculateReducedChi2(residuals, pixelsArrayOfArrays[threadIndex]);
-                                    if (R2 >= R2CutOff) {
+                                    if (R2 >= R2CutOff && Chi2 < Chi2CutOff) {
                                             aZeroDataG[x][y][cycleNum] = (float) fittedParam[0];
                                             rateDataG[x][y][cycleNum] = (float) fittedParam[1];
                                             a2DataG[x][y][cycleNum] = (float) fittedParam[2];
@@ -1163,7 +1513,7 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
                                         double[] residuals = cf.getResiduals();
                                         double[] theFit = getTheFit(fittedParam, timeDataArrayOfArrays[threadIndex]);
                                         double Chi2 = calculateReducedChi2(residuals, pixelsArrayOfArrays[threadIndex]);
-                                        if (R2 >= R2CutOff) {
+                                        if (R2 >= R2CutOff && Chi2 < Chi2CutOff) {
                                             aZeroDataG[x][y][cycleNum] = (float) fittedParam[0];
                                             rateDataG[x][y][cycleNum] = (float) fittedParam[1];
                                             offsetDataG[x][y][cycleNum] = (float) fittedParam[2];
@@ -1541,20 +1891,47 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
         return chi2ToReturn;
     }
     
-    public double calculateReducedChi2(double[] residualArray, double[] theDataArray) {
+    public double calculateReducedChi2(double[] residualArray, double[] dataArray) {
+        double AiryRadius = 1.22*lambda/NA;         
+        double PSFArea = Math.PI*AiryRadius*AiryRadius;        
+        double numPixelsInPSF = PSFArea/(pixSize*pixSize);
         double chi2ToReturn = 0;
+        double weightedAverageVariance = 0;
+        double sumWeightedVariance = 0;
+
+        residualArray = multiplyArrayByValue(residualArray,binFactorImage*binFactorImage);//in case of post-processing bin averaging to get total signal
+        dataArray = multiplyArrayByValue(dataArray,binFactorImage*binFactorImage);        
+        
+        residualArray = divideArrayByValue(residualArray,cameraGain);//convert to electrons
+        dataArray = divideArrayByValue(dataArray,cameraGain);//convert to electrons; this will also be the uncorrelated variance        
+        double[] coVarArray = multiplyArrayByValue(dataArray,binFactor*binFactor/numPixelsInPSF); 
+        //if occuring covariance should be within a PSF. The total signal is scaled by the 
+        //number of unbinned pixels (number of actual measurements) in a PSF
+        //these would be the camera pixels which may have correlated noise
+        //this is more of a problem with larger Rois
+        dataArray=addTwoArrays(dataArray,coVarArray);//total variance
+        
+        for(int da=0;da<dataArray.length;da++){
+            sumWeightedVariance += (1/dataArray[da]);
+        }
+        weightedAverageVariance = sumWeightedVariance/dataArray.length;
+        double[] weightArray = new double[dataArray.length];
+        for(int wa=0;wa<dataArray.length;wa++){
+            weightArray[wa] = (1/dataArray[wa])/weightedAverageVariance;
+        }
         double[] residualArray2 = multiplyTwoArrays(residualArray, residualArray);
-        for (int tp = 0; tp < residualArray2.length; tp++) {
-            if (!Double.isInfinite(residualArray2[tp])) {
-                chi2ToReturn += (residualArray2[tp]/theDataArray[tp]);
+        double[] arrayToSum = multiplyTwoArrays(residualArray2, weightArray);
+        for (int tp = 0; tp < arrayToSum.length; tp++) {
+            if (!Double.isInfinite(arrayToSum[tp])) {               
+                chi2ToReturn += arrayToSum[tp];
             }
         }
         int df;
         if(fitDouble)
-            df = 6;
+            df=6;
         else
-            df = 4;
-        return chi2ToReturn/(residualArray.length-df);
+            df=4;
+        return (chi2ToReturn/(residualArray.length-df))*weightedAverageVariance;
     }
 
     /**
@@ -1745,6 +2122,25 @@ public class Photoswitching_Pixel_Fitter extends javax.swing.JFrame implements U
         }
         return sum;
     }
-    
+     private static double[] multiplyArrayByValue(double[] array1, double theValue) {
+        double[] arrayToReturn = new double[array1.length];
+        for (int i = 0; i < array1.length; i++) {
+            arrayToReturn[i] = array1[i]*theValue;
+        }
+        return arrayToReturn;
+    }
+     private static double[] addTwoArrays(double[] array1, double[] array2) {
+        if (array1.length != array2.length) {
+            IJ.showMessage("psFRET_T_Profiler", "The time and data arrays are not the same length");
+            return null;
+        }
+        double[] arrayToReturn = new double[array1.length];
+        for (int i = 0; i < array1.length; i++) {
+            arrayToReturn[i] = array1[i] + array2[i];
+        }
+        return arrayToReturn;
+
+    }
+  
     
 }
